@@ -205,7 +205,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     <div class="logo-icon">⚡</div>
     <div>
       <div class="logo-text"><?= e(Settings::get('site_name', 'ROICT CMS')) ?></div>
-      <div class="logo-version">v<?= CMS_VERSION ?> Admin</div>
+      <div class="logo-version">v<?= Updater::currentVersion() ?> Admin</div>
     </div>
   </div>
   <nav>

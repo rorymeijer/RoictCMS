@@ -23,6 +23,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax'])) {
         echo json_encode(ModuleManager::toggle($slug));
     } elseif ($action === 'uninstall') {
         echo json_encode(ModuleManager::uninstall($slug));
+    } elseif ($action === 'update') {
+        echo json_encode(ModuleManager::update($slug, $_POST['download_url'] ?? ''));
+    } elseif ($action === 'update_theme') {
+        echo json_encode(ThemeManager::update($slug, $_POST['download_url'] ?? ''));
     } elseif ($action === 'activate_theme') {
         $ok = ThemeManager::activate($slug);
         echo json_encode(['success' => $ok, 'message' => $ok ? 'Thema geactiveerd.' : 'Thema niet gevonden.']);
@@ -31,7 +35,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax'])) {
 }
 
 $marketplace = ModuleManager::getMarketplace();
+// Bouw een lookup van remote versies voor update-vergelijking
+$remoteVersions = [];
+foreach ($marketplace['modules'] ?? [] as $m) {
+    $remoteVersions[$m['slug']] = ['version' => $m['version'] ?? '0', 'download_url' => $m['download_url'] ?? ''];
+}
 $marketplaceThemes = ThemeManager::getMarketplace();
+// Remote thema versies voor update-vergelijking
+$remoteThemeVersions = [];
+foreach ($marketplaceThemes as $t) {
+    $remoteThemeVersions[$t['slug']] = ['version' => $t['version'] ?? '0', 'download_url' => $t['download_url'] ?? ''];
+}
 $installedModules = array_column(ModuleManager::getInstalled(), null, 'slug');
 $availableThemes = array_column(ThemeManager::getAvailable(), null, 'slug');
 $activeTheme = ThemeManager::getActive();
@@ -103,10 +117,28 @@ require_once __DIR__ . '/../includes/header.php';
       
       <p style="font-size:.82rem;color:var(--text-muted);margin:.5rem 0 0;"><?= e($item['description']) ?></p>
       
+      <?php
+        $hasUpdate = $installed && isset($remoteVersions[$item['slug']]) &&
+            version_compare($remoteVersions[$item['slug']]['version'], $installedModules[$item['slug']]['version'] ?? '0', '>');
+        $updateUrl = $remoteVersions[$item['slug']]['download_url'] ?? '';
+        $installedVersion = $installedModules[$item['slug']]['version'] ?? null;
+      ?>
       <div class="d-flex align-items-center justify-content-between mt-auto pt-3" style="border-top:1px solid var(--border);">
-        <span style="font-size:.75rem;color:var(--text-muted);">v<?= e($item['version']) ?> door <?= e($item['author']) ?></span>
+        <div>
+          <span style="font-size:.75rem;color:var(--text-muted);">v<?= e($item['version']) ?> door <?= e($item['author']) ?></span>
+          <?php if ($hasUpdate): ?>
+          <span style="display:inline-block;margin-left:.4rem;background:#f59e0b;color:white;border-radius:6px;padding:.1rem .45rem;font-size:.65rem;font-weight:700;">
+            UPDATE v<?= e($remoteVersions[$item['slug']]['version']) ?>
+          </span>
+          <?php endif; ?>
+        </div>
         <div class="d-flex gap-2 align-items-center">
           <?php if ($installed): ?>
+          <?php if ($hasUpdate): ?>
+          <button class="btn btn-sm btn-warning" onclick="updateModule('<?= e($item['slug']) ?>', '<?= e($updateUrl) ?>', this)" title="Bijwerken naar v<?= e($remoteVersions[$item['slug']]['version']) ?>">
+            <i class="bi bi-arrow-up-circle me-1"></i> Update
+          </button>
+          <?php endif; ?>
           <span class="badge-status <?= $isActive ? 'badge-active' : 'badge-inactive' ?>" style="font-size:.7rem;"><?= $isActive ? 'Actief' : 'Inactief' ?></span>
           <button class="btn btn-sm btn-outline-secondary" onclick="toggleModule('<?= e($item['slug']) ?>', this)" title="<?= $isActive ? 'Deactiveren' : 'Activeren' ?>">
             <i class="bi bi-<?= $isActive ? 'pause' : 'play' ?>-fill"></i>
@@ -211,6 +243,23 @@ async function installItem(slug, type, url, btn) {
   }
 }
 
+async function updateModule(slug, downloadUrl, btn) {
+  if (!confirm('Module bijwerken? De module wordt tijdelijk gedeactiveerd.')) return;
+  const original = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Bijwerken...';
+  btn.disabled = true;
+  const result = await apiCall({action: 'update', slug, download_url: downloadUrl});
+  if (result.success) {
+    btn.closest('.col-md-4, .col-sm-6').querySelector('.badge-status, [class*=UPDATE]')?.remove();
+    btn.remove();
+    showAlert(result.message, 'success');
+  } else {
+    btn.innerHTML = original;
+    btn.disabled = false;
+    showAlert(result.message, 'danger');
+  }
+}
+
 async function toggleModule(slug, btn) {
   const result = await apiCall({action: 'toggle', slug});
   if (result.success) {
@@ -223,6 +272,22 @@ async function uninstallModule(slug, btn) {
   if (!confirm('Module verwijderen? Dit kan niet ongedaan gemaakt worden.')) return;
   const result = await apiCall({action: 'uninstall', slug});
   if (result.success) { showToast('success', result.message); setTimeout(() => location.reload(), 800); }
+}
+
+async function updateTheme(slug, downloadUrl, btn) {
+  if (!confirm('Thema bijwerken? Het actieve thema blijft actief.')) return;
+  const original = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Bijwerken...';
+  btn.disabled = true;
+  const result = await apiCall({action: 'update_theme', slug, download_url: downloadUrl});
+  if (result.success) {
+    btn.remove();
+    showAlert(result.message, 'success');
+  } else {
+    btn.innerHTML = original;
+    btn.disabled = false;
+    showAlert(result.message, 'danger');
+  }
 }
 
 async function activateTheme(slug, btn) {

@@ -340,6 +340,34 @@ class ModuleManager {
     }
 
 
+
+    public static function update(string $slug, string $downloadUrl): array {
+        if (!self::isInstalled($slug)) {
+            return ['success' => false, 'message' => 'Module is niet geïnstalleerd.'];
+        }
+
+        // Bewaar huidige status (active/inactive)
+        $current = self::$db->fetch("SELECT status FROM `" . DB_PREFIX . "modules` WHERE slug = ?", [$slug]);
+        $status = $current['status'] ?? 'active';
+
+        // Download en overschrijf de module map
+        $result = self::downloadAndExtract($downloadUrl, MODULES_PATH, $slug);
+        if (!$result['success']) return $result;
+
+        // Lees nieuwe versie uit module.json
+        $jsonFile = MODULES_PATH . '/' . $slug . '/module.json';
+        $info = file_exists($jsonFile) ? (json_decode(file_get_contents($jsonFile), true) ?? []) : [];
+        $newVersion = $info['version'] ?? null;
+
+        // Update versie in database, behoud status
+        self::$db->update(DB_PREFIX . 'modules', [
+            'version' => $newVersion,
+            'status'  => $status,
+        ], 'slug = ?', [$slug]);
+
+        return ['success' => true, 'message' => ($info['name'] ?? $slug) . ' bijgewerkt naar v' . $newVersion . '.'];
+    }
+
     public static function uninstall(string $slug): array {
         // Voer uninstall.php uit als die bestaat
         $uninstallScript = MODULES_PATH . '/' . $slug . '/uninstall.php';

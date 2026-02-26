@@ -56,6 +56,27 @@ class ThemeManager {
         return [];
     }
 
+
+    // ── Update een geïnstalleerd thema ────────────────────────────────────
+    public static function update(string $slug, string $downloadUrl): array {
+        $themeDir = THEMES_PATH . '/' . $slug;
+        if (!is_dir($themeDir)) {
+            return ['success' => false, 'message' => 'Thema is niet geïnstalleerd.'];
+        }
+
+        // Verwijder huidige map en herinstalleer
+        self::rrmdir($themeDir);
+        $result = self::install($slug, $downloadUrl);
+        if (!$result['success']) return $result;
+
+        $info = [];
+        if (file_exists($themeDir . '/theme.json')) {
+            $info = json_decode(file_get_contents($themeDir . '/theme.json'), true) ?? [];
+        }
+
+        return ['success' => true, 'message' => ($info['name'] ?? $slug) . ' bijgewerkt naar v' . ($info['version'] ?? '?') . '.'];
+    }
+
     // ── Download en installeer thema van URL ──────────────────────────────
     public static function install(string $slug, string $downloadUrl): array {
         $themeDir = THEMES_PATH . '/' . $slug;
