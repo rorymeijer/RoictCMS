@@ -1,0 +1,8 @@
+{
+  "name": "ROICT Basic",
+  "version": "1.0.0",
+  "author": "ROICT",
+  "description": "A clean, modern and responsive default theme for ROICT CMS with dark/light mode support.",
+  "screenshot": "screenshot.png",
+  "supports": ["menus", "featured-images", "widgets"]
+}

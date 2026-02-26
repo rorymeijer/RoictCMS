@@ -1,0 +1,6 @@
+{
+  "version": "1.0.0",
+  "_comment": "Dit bestand is een offline fallback. De live marketplace wordt beheerd via https://github.com/rorymeijer/roictcms_modules/blob/main/marketplace.json",
+  "modules": [],
+  "themes": []
+}
