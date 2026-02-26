@@ -130,7 +130,7 @@ require_once __DIR__ . '/../includes/header.php';
         <div>
           <span style="font-size:.75rem;color:var(--text-muted);">v<?= e($item['version']) ?> door <?= e($item['author']) ?></span>
           <?php if ($hasUpdate): ?>
-          <span style="display:inline-block;margin-left:.4rem;background:#f59e0b;color:white;border-radius:6px;padding:.1rem .45rem;font-size:.65rem;font-weight:700;">
+          <span data-update-badge style="display:inline-block;margin-left:.4rem;background:#f59e0b;color:white;border-radius:6px;padding:.1rem .45rem;font-size:.65rem;font-weight:700;">
             ↑ v<?= e($installedVer) ?> → v<?= e($remoteVer) ?>
           </span>
           <?php endif; ?>
@@ -253,8 +253,9 @@ async function updateModule(slug, downloadUrl, btn) {
   btn.disabled = true;
   const result = await apiCall({action: 'update', slug, download_url: downloadUrl});
   if (result.success) {
-    btn.closest('.col-md-4, .col-sm-6').querySelector('.badge-status, [class*=UPDATE]')?.remove();
-    btn.remove();
+    // Verwijder update badge en knop veilig
+    const card = btn.closest('.market-card') || btn.closest('[class*="col-"]') || btn.parentElement;
+    card.querySelectorAll('[data-update-badge], .btn-warning').forEach(el => el.remove());
     showAlert(result.message, 'success');
   } else {
     btn.innerHTML = original;
