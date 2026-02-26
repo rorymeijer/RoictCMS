@@ -6,9 +6,10 @@
 // Close sidebar on outside click (mobile)
 document.addEventListener('click', function(e) {
   const sidebar = document.getElementById('sidebar');
-  if (window.innerWidth < 768 && sidebar.classList.contains('open')) {
-    if (!sidebar.contains(e.target)) {
-      sidebar.classList.remove('open');
+  const toggleBtn = document.querySelector('.sidebar-toggle-btn');
+  if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+    if (!sidebar.contains(e.target) && !(toggleBtn && toggleBtn.contains(e.target))) {
+      closeSidebar();
     }
   }
 });
