@@ -118,8 +118,11 @@ require_once __DIR__ . '/../includes/header.php';
       <p style="font-size:.82rem;color:var(--text-muted);margin:.5rem 0 0;"><?= e($item['description']) ?></p>
       
       <?php
-        $hasUpdate = $installed && isset($remoteVersions[$item['slug']]) &&
-            version_compare($remoteVersions[$item['slug']]['version'], $installedModules[$item['slug']]['version'] ?? '0', '>');
+        $installedVer = $installed ? ($installedModules[$item['slug']]['version'] ?? '0.0.0') : '0.0.0';
+        $installedVer = $installedVer ?: '0.0.0'; // null/empty fallback
+        $remoteVer    = $remoteVersions[$item['slug']]['version'] ?? '0.0.0';
+        $hasUpdate    = $installed && isset($remoteVersions[$item['slug']]) &&
+            version_compare($remoteVer, $installedVer, '>');
         $updateUrl = $remoteVersions[$item['slug']]['download_url'] ?? '';
         $installedVersion = $installedModules[$item['slug']]['version'] ?? null;
       ?>
@@ -128,7 +131,7 @@ require_once __DIR__ . '/../includes/header.php';
           <span style="font-size:.75rem;color:var(--text-muted);">v<?= e($item['version']) ?> door <?= e($item['author']) ?></span>
           <?php if ($hasUpdate): ?>
           <span style="display:inline-block;margin-left:.4rem;background:#f59e0b;color:white;border-radius:6px;padding:.1rem .45rem;font-size:.65rem;font-weight:700;">
-            UPDATE v<?= e($remoteVersions[$item['slug']]['version']) ?>
+            ↑ v<?= e($installedVer) ?> → v<?= e($remoteVer) ?>
           </span>
           <?php endif; ?>
         </div>

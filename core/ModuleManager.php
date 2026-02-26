@@ -9,6 +9,20 @@ class ModuleManager {
 
     // Boot alle actieve modules (laad hun init.php)
     public static function bootModules(): void {
+        // Fix modules met NULL versie door module.json te lezen
+        $nullVersions = self::$db->fetchAll(
+            "SELECT slug FROM `" . DB_PREFIX . "modules` WHERE version IS NULL OR version = ''"
+        );
+        foreach ($nullVersions as $m) {
+            $jsonFile = MODULES_PATH . '/' . $m['slug'] . '/module.json';
+            if (file_exists($jsonFile)) {
+                $info = json_decode(file_get_contents($jsonFile), true) ?? [];
+                if (!empty($info['version'])) {
+                    self::$db->update(DB_PREFIX . 'modules', ['version' => $info['version']], 'slug = ?', [$m['slug']]);
+                }
+            }
+        }
+
         $modules = self::$db->fetchAll(
             "SELECT slug FROM `" . DB_PREFIX . "modules` WHERE status = 'active'"
         );
