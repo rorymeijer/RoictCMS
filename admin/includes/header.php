@@ -171,19 +171,30 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 .action-btns { display: flex; gap: .35rem; }
 
 /* Sidebar toggle for mobile */
-/* Hamburger alleen op mobiel */
 .sidebar-toggle-btn { display: none; }
 
+/* Overlay altijd in DOM, altijd verborgen tenzij .show */
+#sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 350;
+}
+#sidebar-overlay.show { display: block; }
+
 @media (max-width: 768px) {
-  .sidebar-toggle-btn { display: flex; }
-  #sidebar { transform: translateX(-100%); transition: transform .28s cubic-bezier(.4,0,.2,1); }
-  #sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,.35); }
-  #main-wrap { margin-left: 0; }
-  #sidebar-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,.45); z-index: 299;
+  .sidebar-toggle-btn { display: flex !important; }
+  #sidebar {
+    transform: translateX(-100%);
+    transition: transform .28s ease;
+    z-index: 400 !important;
   }
-  #sidebar-overlay.show { display: block; }
+  #sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0,0,0,.4);
+  }
+  #main-wrap { margin-left: 0 !important; }
 }
 
 /* Misc */
@@ -292,22 +303,34 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   <div id="content">
     <?= renderFlash() ?>
 <script>
+var sidebar = document.getElementById('sidebar');
+var overlay = document.getElementById('sidebar-overlay');
+
 function toggleSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebar-overlay');
-  sidebar.classList.toggle('open');
-  overlay.classList.toggle('show');
+  var isOpen = sidebar.classList.contains('open');
+  if (isOpen) {
+    closeSidebar();
+  } else {
+    openSidebar();
+  }
+}
+function openSidebar() {
+  sidebar.classList.add('open');
+  overlay.classList.add('show');
+  document.body.style.overflow = 'hidden';
 }
 function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebar-overlay').classList.remove('show');
+  sidebar.classList.remove('open');
+  overlay.classList.remove('show');
+  document.body.style.overflow = '';
 }
+
+overlay.addEventListener('click', closeSidebar);
+
 // Sluit sidebar bij nav-link klik op mobiel
-document.addEventListener('DOMContentLoaded', function() {
-  if (window.innerWidth <= 768) {
-    document.querySelectorAll('#sidebar .nav-link').forEach(function(link) {
-      link.addEventListener('click', closeSidebar);
-    });
-  }
+document.querySelectorAll('#sidebar .nav-link').forEach(function(link) {
+  link.addEventListener('click', function() {
+    if (window.innerWidth <= 768) closeSidebar();
+  });
 });
 </script>
