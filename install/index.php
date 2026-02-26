@@ -125,6 +125,7 @@ function runInstall(array $db, array $site, array $admin): array {
             'date_format' => 'd M Y',
             'timezone' => 'Europe/Amsterdam',
             'language' => 'nl',
+            'cms_version' => CMS_VERSION,
         ];
         $stmt = $pdo->prepare("INSERT INTO `{$prefix}settings` (`key`, `value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)");
         foreach ($defaults as $k => $v) $stmt->execute([$k, $v]);

@@ -4,11 +4,22 @@ class Updater {
     private static $versionUrl = 'https://raw.githubusercontent.com/rorymeijer/RoictCMS/main/version.json';
 
     // ── Versie check ──────────────────────────────────────────────────────
+    // Huidige versie: DB heeft voorrang (wordt bijgewerkt na update),
+    // anders valt het terug op de constante in config.php
+    public static function currentVersion(): string {
+        if (INSTALLED && class_exists('Settings')) {
+            $v = Settings::get('cms_version');
+            if ($v) return $v;
+        }
+        return CMS_VERSION;
+    }
+
     public static function checkForUpdates(): array {
+        $current = self::currentVersion();
         $ctx = stream_context_create([
             'http' => [
                 'timeout'    => 8,
-                'user_agent' => 'ROICT-CMS/' . CMS_VERSION,
+                'user_agent' => 'ROICT-CMS/' . $current,
             ],
         ]);
 
@@ -17,19 +28,19 @@ class Updater {
             $remote = json_decode($data, true);
             if ($remote && isset($remote['version'])) {
                 return [
-                    'current'          => CMS_VERSION,
+                    'current'          => $current,
                     'latest'           => $remote['version'],
                     'changelog'        => $remote['changelog'] ?? [],
                     'download_url'     => $remote['download_url'] ?? null,
-                    'update_available' => version_compare($remote['version'], CMS_VERSION, '>'),
+                    'update_available' => version_compare($remote['version'], $current, '>'),
                     'release_date'     => $remote['release_date'] ?? null,
                 ];
             }
         }
 
         return [
-            'current'          => CMS_VERSION,
-            'latest'           => CMS_VERSION,
+            'current'          => $current,
+            'latest'           => $current,
             'changelog'        => [],
             'download_url'     => null,
             'update_available' => false,
@@ -93,9 +104,19 @@ class Updater {
         // 5. Kopieer bestanden over — sla config.php en uploads/ over
         $steps[] = self::step('Bestanden installeren...');
         $skip = ['config.php', 'uploads', 'backups'];
+
+        // Lees het nieuwe versienummer VOOR we bestanden overschrijven
+        $newVersion = self::readVersionFromPackage($sourceDir);
+
         self::copyUpdate($sourceDir, BASE_PATH, $skip);
         self::rrmdir($tmpDir);
         $steps[] = self::step('Bestanden geïnstalleerd', true);
+
+        // Sla nieuwe versie op in database zodat het direct zichtbaar is
+        if ($newVersion && INSTALLED && class_exists('Settings')) {
+            Settings::set('cms_version', $newVersion);
+            $steps[] = self::step('Versie bijgewerkt naar ' . $newVersion, true);
+        }
 
         // 6. Database migraties uitvoeren indien aanwezig
         $migrationFile = BASE_PATH . '/core/migrations.php';
@@ -116,6 +137,25 @@ class Updater {
             'message' => 'CMS succesvol bijgewerkt!',
             'steps'   => $steps,
         ];
+    }
+
+    // ── Lees versie uit gedownload pakket ────────────────────────────────
+    private static function readVersionFromPackage(string $sourceDir): ?string {
+        // Probeer version.json in het pakket
+        $versionFile = $sourceDir . '/version.json';
+        if (file_exists($versionFile)) {
+            $data = json_decode(file_get_contents($versionFile), true);
+            if (!empty($data['version'])) return $data['version'];
+        }
+        // Fallback: lees uit core/config.php
+        $configFile = $sourceDir . '/core/config.php';
+        if (file_exists($configFile)) {
+            $content = file_get_contents($configFile);
+            if (preg_match("/define\s*\(\s*['\"]CMS_VERSION['\"]\s*,\s*['\"]([^\'\"]+)['\"]\s*\)/", $content, $m)) {
+                return $m[1];
+            }
+        }
+        return null;
     }
 
     // ── Maak een backup van alle CMS bestanden (excl. uploads) ────────────
