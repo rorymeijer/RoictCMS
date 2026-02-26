@@ -306,14 +306,9 @@ class ModuleManager {
             self::rrmdir($destDir); // overschrijf bij update
         }
 
-        if (!rename($sourceDir, $destDir)) {
-            // rename() werkt soms niet cross-device, gebruik copy als fallback
-            self::rcopy($sourceDir, $destDir);
-            self::rrmdir($tmpExtract);
-        } else {
-            // Ruim rest van tmpExtract op
-            if (is_dir($tmpExtract)) self::rrmdir($tmpExtract);
-        }
+        // Gebruik altijd rcopy (rename() faalt bij cross-device, bijv. /tmp -> public_html)
+        self::rcopy($sourceDir, $destDir);
+        self::rrmdir($tmpExtract);
 
         if (!is_dir($destDir)) {
             return ['success' => false, 'message' => 'Extractie mislukt. Controleer de serverrechten.'];

@@ -20,7 +20,7 @@ class Settings {
         if ($existing) {
             self::$db->update(DB_PREFIX . 'settings', ['value' => $value], '`key` = ?', [$key]);
         } else {
-            self::$db->insert(DB_PREFIX . 'settings', ['key' => $key, 'value' => $value]);
+            self::$db->getPdo()->prepare("INSERT INTO `" . DB_PREFIX . "settings` (`key`, `value`) VALUES (?, ?)")->execute([$key, $value]);
         }
     }
 

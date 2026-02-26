@@ -105,13 +105,9 @@ class ThemeManager {
             if (is_dir($sub)) $sourceDir = $sub;
         }
 
-        // Verplaats naar themes/
-        if (!rename($sourceDir, $themeDir)) {
-            self::rcopy($sourceDir, $themeDir);
-            self::rrmdir($tmpExtract);
-        } elseif (is_dir($tmpExtract)) {
-            self::rrmdir($tmpExtract);
-        }
+        // Gebruik altijd rcopy (rename() faalt bij cross-device, bijv. /tmp -> public_html)
+        self::rcopy($sourceDir, $themeDir);
+        self::rrmdir($tmpExtract);
 
         if (!is_dir($themeDir)) {
             return ['success' => false, 'message' => 'Installatie mislukt.'];
