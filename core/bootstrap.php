@@ -15,6 +15,24 @@ if (INSTALLED) {
     ModuleManager::bootModules();
 }
 
+
+// ── Hook systeem (altijd beschikbaar, ook in admin en modules) ────────────
+$GLOBALS['_cms_actions'] = [];
+
+function add_action(string $hook, callable $callback, int $priority = 10): void {
+    $GLOBALS['_cms_actions'][$hook][$priority][] = $callback;
+}
+
+function do_action(string $hook, ...$args): void {
+    $hooks = $GLOBALS['_cms_actions'][$hook] ?? [];
+    ksort($hooks);
+    foreach ($hooks as $callbacks) {
+        foreach ($callbacks as $cb) {
+            $cb(...$args);
+        }
+    }
+}
+
 // CSRF helpers
 function csrf_token(): string {
     if (empty($_SESSION['csrf_token'])) {
