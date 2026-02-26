@@ -33,7 +33,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 #sidebar {
   position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh;
   background: var(--sidebar-bg); display: flex; flex-direction: column;
-  z-index: 200; transition: transform .3s; overflow-y: auto; overflow-x: hidden;
+  z-index: 300; transition: transform .3s; overflow-y: auto; overflow-x: hidden;
 }
 #sidebar .sidebar-logo {
   padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: .75rem;
@@ -90,7 +90,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 /* Topbar */
 #topbar {
   height: var(--topbar-h); background: var(--card-bg); border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; padding: 0 1.75rem; gap: 1rem; position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; padding: 0 1.75rem; gap: 1rem; position: sticky; top: 0; z-index: 400;
 }
 #topbar .page-title { font-size: 1rem; font-weight: 700; color: var(--text); }
 #topbar .topbar-actions { margin-left: auto; display: flex; align-items: center; gap: .5rem; }
@@ -171,10 +171,19 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 .action-btns { display: flex; gap: .35rem; }
 
 /* Sidebar toggle for mobile */
+/* Hamburger alleen op mobiel */
+.sidebar-toggle-btn { display: none; }
+
 @media (max-width: 768px) {
-  #sidebar { transform: translateX(-100%); }
-  #sidebar.open { transform: translateX(0); }
+  .sidebar-toggle-btn { display: flex; }
+  #sidebar { transform: translateX(-100%); transition: transform .28s cubic-bezier(.4,0,.2,1); }
+  #sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,.35); }
   #main-wrap { margin-left: 0; }
+  #sidebar-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.45); z-index: 299;
+  }
+  #sidebar-overlay.show { display: block; }
 }
 
 /* Misc */
@@ -259,11 +268,12 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     </div>
   </div>
 </aside>
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
 
 <!-- Main -->
 <div id="main-wrap">
   <div id="topbar">
-    <button class="topbar-icon-btn d-md-none" onclick="document.getElementById('sidebar').classList.toggle('open')">
+    <button class="topbar-icon-btn sidebar-toggle-btn" onclick="toggleSidebar()">
       <i class="bi bi-list"></i>
     </button>
     <span class="page-title"><?= isset($pageTitle) ? e($pageTitle) : 'Dashboard' ?></span>
@@ -281,3 +291,23 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   </div>
   <div id="content">
     <?= renderFlash() ?>
+<script>
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('show');
+}
+// Sluit sidebar bij nav-link klik op mobiel
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.innerWidth <= 768) {
+    document.querySelectorAll('#sidebar .nav-link').forEach(function(link) {
+      link.addEventListener('click', closeSidebar);
+    });
+  }
+});
+</script>
