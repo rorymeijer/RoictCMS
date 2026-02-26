@@ -24,10 +24,10 @@ require_once __DIR__ . '/../includes/header.php';
       <div class="cms-card mb-4">
         <div class="cms-card-header"><span class="cms-card-title">Algemene Instellingen</span></div>
         <div class="cms-card-body">
-          <div class="mb-3"><label class="form-label">Sitenaam *</label><input type="text" class="form-control" name="site_name" value="<?= e(Settings::get('site_name')) ?>" required></div>
-          <div class="mb-3"><label class="form-label">Tagline</label><input type="text" class="form-control" name="site_tagline" value="<?= e(Settings::get('site_tagline')) ?>"></div>
-          <div class="mb-3"><label class="form-label">Contact Email</label><input type="email" class="form-control" name="site_email" value="<?= e(Settings::get('site_email')) ?>"></div>
-          <div class="mb-3"><label class="form-label">Footer Tekst</label><input type="text" class="form-control" name="footer_text" value="<?= e(Settings::get('footer_text')) ?>"></div>
+          <div class="mb-3"><label class="form-label">Sitenaam *</label><input type="text" class="form-control" name="site_name" value="<?= e(Settings::get('site_name', '')) ?>" required></div>
+          <div class="mb-3"><label class="form-label">Tagline</label><input type="text" class="form-control" name="site_tagline" value="<?= e(Settings::get('site_tagline', '')) ?>"></div>
+          <div class="mb-3"><label class="form-label">Contact Email</label><input type="email" class="form-control" name="site_email" value="<?= e(Settings::get('site_email', '')) ?>"></div>
+          <div class="mb-3"><label class="form-label">Footer Tekst</label><input type="text" class="form-control" name="footer_text" value="<?= e(Settings::get('footer_text', '')) ?>"></div>
         </div>
       </div>
       <div class="cms-card">
@@ -46,15 +46,15 @@ require_once __DIR__ . '/../includes/header.php';
               <label class="form-label">Tijdzone</label>
               <select class="form-select" name="timezone">
                 <?php foreach (['Europe/Amsterdam','Europe/London','Europe/Berlin','America/New_York','UTC'] as $tz): ?>
-                <option value="<?= $tz ?>" <?= Settings::get('timezone') === $tz ? 'selected' : '' ?>><?= $tz ?></option>
+                <option value="<?= $tz ?>" <?= Settings::get('timezone', '') === $tz ? 'selected' : '' ?>><?= $tz ?></option>
                 <?php endforeach; ?>
               </select>
             </div>
             <div class="col-md-6">
               <label class="form-label">Taal</label>
               <select class="form-select" name="language">
-                <option value="nl" <?= Settings::get('language') === 'nl' ? 'selected' : '' ?>>Nederlands</option>
-                <option value="en" <?= Settings::get('language') === 'en' ? 'selected' : '' ?>>English</option>
+                <option value="nl" <?= Settings::get('language', '') === 'nl' ? 'selected' : '' ?>>Nederlands</option>
+                <option value="en" <?= Settings::get('language', '') === 'en' ? 'selected' : '' ?>>English</option>
               </select>
             </div>
           </div>
@@ -66,7 +66,7 @@ require_once __DIR__ . '/../includes/header.php';
         <div class="cms-card-header"><span class="cms-card-title">Site Status</span></div>
         <div class="cms-card-body">
           <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" name="maintenance_mode" value="1" id="maint" <?= Settings::get('maintenance_mode') ? 'checked' : '' ?>>
+            <input class="form-check-input" type="checkbox" name="maintenance_mode" value="1" id="maint" <?= Settings::get('maintenance_mode', '') ? 'checked' : '' ?>>
             <label class="form-check-label fw-semibold" for="maint">Onderhoudsmodus</label>
           </div>
           <small class="text-muted">Bezoekers zien een onderhoudspagina.</small>

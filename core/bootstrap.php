@@ -50,8 +50,8 @@ function csrf_verify(): bool {
 }
 
 // Sanitize helpers
-function e(string $str): string {
-    return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
+function e(?string $str): string {
+    return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
 }
 
 function slug(string $str): string {
