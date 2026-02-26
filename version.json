@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0",
+  "release_date": "2026-02-26",
+  "download_url": "https://github.com/rorymeijer/RoictCMS/archive/refs/heads/main.zip",
+  "changelog": [
+    "Eerste publieke release van ROICT CMS",
+    "Installer wizard met systeemcheck",
+    "Pagina- en nieuwsbeheer met SEO velden",
+    "Gebruikersbeheer met rollen",
+    "Marketplace voor modules en thema's via GitHub",
+    "Automatische updates vanuit het admin paneel",
+    "ROICT Basic thema meegeleverd"
+  ]
+}
