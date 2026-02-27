@@ -1,0 +1,12 @@
+{
+  "name": "ROICT Black",
+  "version": "1.0.0",
+  "author": "ROICT",
+  "description": "Een chique dark-mode theme met strakke contrasten en minimalistische luxe.",
+  "screenshot": "screenshot.png",
+  "supports": [
+    "menus",
+    "featured-images",
+    "widgets"
+  ]
+}

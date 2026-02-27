@@ -1,0 +1,12 @@
+{
+  "name": "ROICT Premium",
+  "version": "1.0.0",
+  "author": "ROICT",
+  "description": "Een luxueuze theme met paarse elegance, gouden details en high-end uitstraling.",
+  "screenshot": "screenshot.png",
+  "supports": [
+    "menus",
+    "featured-images",
+    "widgets"
+  ]
+}
