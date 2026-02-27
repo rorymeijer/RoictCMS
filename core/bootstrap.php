@@ -7,15 +7,6 @@ require_once __DIR__ . '/ModuleManager.php';
 require_once __DIR__ . '/ThemeManager.php';
 require_once __DIR__ . '/Updater.php';
 
-// Init services that need DB
-if (INSTALLED) {
-    Auth::init();
-    Settings::init();
-    ModuleManager::init();
-    ModuleManager::bootModules();
-}
-
-
 // ── Hook systeem (altijd beschikbaar, ook in admin en modules) ────────────
 $GLOBALS['_cms_actions'] = [];
 
@@ -31,6 +22,14 @@ function do_action(string $hook, ...$args): void {
             $cb(...$args);
         }
     }
+}
+
+// Init services that need DB
+if (INSTALLED) {
+    Auth::init();
+    Settings::init();
+    ModuleManager::init();
+    ModuleManager::bootModules();
 }
 
 // CSRF helpers
