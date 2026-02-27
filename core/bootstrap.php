@@ -24,6 +24,30 @@ function do_action(string $hook, ...$args): void {
     }
 }
 
+// ── Shortcode systeem ─────────────────────────────────────────────────────
+$GLOBALS['_cms_shortcodes'] = [];
+
+function add_shortcode(string $tag, callable $callback): void {
+    $GLOBALS['_cms_shortcodes'][$tag] = $callback;
+}
+
+function do_shortcode(string $content): string {
+    if (empty($GLOBALS['_cms_shortcodes'])) {
+        return $content;
+    }
+    return preg_replace_callback(
+        '/\[([a-zA-Z_][a-zA-Z0-9_-]*)\]/',
+        function (array $matches): string {
+            $tag = $matches[1];
+            if (isset($GLOBALS['_cms_shortcodes'][$tag])) {
+                return (string) call_user_func($GLOBALS['_cms_shortcodes'][$tag]);
+            }
+            return $matches[0];
+        },
+        $content
+    ) ?? $content;
+}
+
 // Init services that need DB
 if (INSTALLED) {
     Auth::init();
