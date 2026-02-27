@@ -1,0 +1,12 @@
+{
+  "name": "ROICT Red",
+  "version": "1.0.0",
+  "author": "ROICT",
+  "description": "Een krachtige, energieke theme met warme rode accenten en premium editorial uitstraling.",
+  "screenshot": "screenshot.png",
+  "supports": [
+    "menus",
+    "featured-images",
+    "widgets"
+  ]
+}

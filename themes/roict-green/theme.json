@@ -1,0 +1,12 @@
+{
+  "name": "ROICT Green",
+  "version": "1.0.0",
+  "author": "ROICT",
+  "description": "Een frisse, natuurlijke theme die vertrouwen en duurzaamheid uitstraalt.",
+  "screenshot": "screenshot.png",
+  "supports": [
+    "menus",
+    "featured-images",
+    "widgets"
+  ]
+}
