@@ -11,7 +11,7 @@
     <h1><?= e($page['title']) ?></h1>
   </header>
   <div class="article-body">
-    <?= $page['content'] ?>
+    <?= do_shortcode($page['content']) ?>
   </div>
 </article>
 <?php endif; ?>
