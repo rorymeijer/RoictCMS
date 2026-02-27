@@ -292,26 +292,23 @@ class ModuleManager {
             return ['success' => false, 'message' => "Ongeldig ZIP bestand (code: {$opened})."];
         }
 
-        // Bepaal de root map binnen de ZIP
-        // GitHub ZIPs hebben een submap zoals "contact-form-main/" of "contact-form/"
-        $zipRoot = '';
-        $firstName = $zip->getNameIndex(0);
-        if ($firstName && substr_count(rtrim($firstName, '/'), '/') === 0 && substr($firstName, -1) === '/') {
-            $zipRoot = $firstName; // bijv. "contact-form/" of "contact-form-main/"
-        }
-
         // Extraheer naar tijdelijke map
         $tmpExtract = sys_get_temp_dir() . '/roict_extract_' . $slug . '_' . time();
         $zip->extractTo($tmpExtract);
         $zip->close();
         @unlink($tmpFile);
 
-        // Bepaal bronmap (met of zonder GitHub submap)
+        // Bepaal bronmap: als de ZIP precies één submap bevat (GitHub-stijl zoals
+        // "contact-form-main/"), gebruik die als bron — ongeacht de volgorde van ZIP-entries.
         $sourceDir = $tmpExtract;
-        if ($zipRoot) {
-            $possible = $tmpExtract . '/' . rtrim($zipRoot, '/');
-            if (is_dir($possible)) {
-                $sourceDir = $possible;
+        $entries = array_values(array_filter(
+            scandir($tmpExtract),
+            fn($e) => $e !== '.' && $e !== '..'
+        ));
+        if (count($entries) === 1) {
+            $sub = $tmpExtract . '/' . $entries[0];
+            if (is_dir($sub)) {
+                $sourceDir = $sub;
             }
         }
 
