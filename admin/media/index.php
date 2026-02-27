@@ -9,13 +9,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file']) && csrf_veri
     $file = $_FILES['file'];
     $allowedTypes = ['image/jpeg','image/png','image/gif','image/webp','application/pdf'];
     $maxSize = 5 * 1024 * 1024; // 5MB
+    $uploadDir = UPLOADS_PATH . '/images';
 
-    if (!in_array($file['type'], $allowedTypes)) { flash('error', 'Bestandstype niet toegestaan.'); }
+    $uploadErrors = [
+        UPLOAD_ERR_INI_SIZE => 'Bestand is te groot voor de serverinstellingen.',
+        UPLOAD_ERR_FORM_SIZE => 'Bestand is te groot voor dit formulier.',
+        UPLOAD_ERR_PARTIAL => 'Bestand is slechts gedeeltelijk geüpload.',
+        UPLOAD_ERR_NO_FILE => 'Geen bestand geselecteerd.',
+        UPLOAD_ERR_NO_TMP_DIR => 'Serverfout: tijdelijke uploadmap ontbreekt.',
+        UPLOAD_ERR_CANT_WRITE => 'Serverfout: bestand kon niet worden weggeschreven.',
+        UPLOAD_ERR_EXTENSION => 'Upload geblokkeerd door een serverextensie.',
+    ];
+
+    if (($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
+        flash('error', $uploadErrors[$file['error']] ?? 'Upload mislukt door een onbekende serverfout.');
+    }
+    elseif (!is_dir($uploadDir) && !mkdir($uploadDir, 0775, true)) {
+        flash('error', 'Uploadmap kon niet worden aangemaakt. Controleer bestandsrechten.');
+    }
+    elseif (!is_writable($uploadDir)) {
+        flash('error', 'Uploadmap is niet schrijfbaar. Controleer bestandsrechten.');
+    }
+    elseif (!in_array($file['type'], $allowedTypes, true)) { flash('error', 'Bestandstype niet toegestaan.'); }
     elseif ($file['size'] > $maxSize) { flash('error', 'Bestand is te groot (max 5MB).'); }
     else {
         $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
         $newName = uniqid() . '_' . time() . '.' . strtolower($ext);
-        $dest = UPLOADS_PATH . '/images/' . $newName;
+        $dest = $uploadDir . '/' . $newName;
         if (move_uploaded_file($file['tmp_name'], $dest)) {
             $db->insert(DB_PREFIX . 'media', [
                 'filename' => 'images/' . $newName,
