@@ -1,0 +1,8 @@
+{
+  "name": "ROICT VIP",
+  "version": "1.0.0",
+  "author": "ROICT",
+  "description": "Clean, modern en responsive standaardthema in VIP stijl.",
+  "screenshot": "screenshot.png",
+  "supports": ["menus", "featured-images", "widgets"]
+}
