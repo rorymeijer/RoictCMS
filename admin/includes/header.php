@@ -211,6 +211,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 .market-price.free { color: #059669; }
 .market-price.paid { color: var(--primary); }
 </style>
+<?php do_action('admin_head'); ?>
 </head>
 <body>
 
@@ -255,6 +256,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       <i class="bi bi-shop"></i> Marketplace
     </a>
 
+    <?php do_action('admin_sidebar_nav', $activePage ?? ''); ?>
     <div class="separator mx-3 my-2"></div>
     <a href="<?= BASE_URL ?>/admin/settings/" class="nav-link <?= ($activePage ?? '') === 'settings' ? 'active' : '' ?>">
       <i class="bi bi-gear"></i> Instellingen

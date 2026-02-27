@@ -29,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <title>Inloggen — <?= e(Settings::get('site_name', 'ROICT CMS')) ?></title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<?php do_action('admin_login_head'); ?>
 <style>
 body { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%); min-height: 100vh; display: flex; align-items: center; font-family: 'Segoe UI', system-ui, sans-serif; }
 .login-card { background: white; border-radius: 20px; box-shadow: 0 30px 80px rgba(0,0,0,.4); width: 100%; max-width: 420px; overflow: hidden; }
@@ -80,8 +81,10 @@ body { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%
           <i class="bi bi-arrow-left"></i> Terug naar website
         </a>
       </div>
+      <?php do_action('admin_login_form_footer'); ?>
     </div>
   </div>
 </div>
+<?php do_action('admin_login_footer'); ?>
 </body>
 </html>

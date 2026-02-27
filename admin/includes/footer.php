@@ -45,5 +45,6 @@ titleInputs.forEach(input => {
 <?php if (isset($extraScript)): ?>
 <script><?= $extraScript ?></script>
 <?php endif; ?>
+<?php do_action('admin_footer'); ?>
 </body>
 </html>
