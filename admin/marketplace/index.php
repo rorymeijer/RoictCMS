@@ -201,7 +201,7 @@ require_once __DIR__ . '/../includes/header.php';
         <button class="btn btn-sm btn-primary flex-fill" onclick="activateTheme('<?= e($theme['slug']) ?>', this)">
           <i class="bi bi-palette me-1"></i> Activeren
         </button>
-        <?php elseif (!isset($theme['included'])): ?>
+        <?php elseif (!($theme['included'] ?? false)): ?>
         <button class="btn btn-sm btn-primary flex-fill" onclick="installItem('<?= e($theme['slug']) ?>', 'theme', '<?= e($theme['download_url'] ?? '') ?>', this)">
           <i class="bi bi-download me-1"></i> Installeren
         </button>
