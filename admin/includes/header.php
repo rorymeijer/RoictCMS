@@ -34,8 +34,9 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh;
   background: var(--sidebar-bg); display: flex; flex-direction: column;
   z-index: 500; transition: transform .25s ease; overflow-y: auto; overflow-x: hidden;
-  transform: translateX(0);
+  transform: translateX(0); scrollbar-width: none; -ms-overflow-style: none;
 }
+#sidebar::-webkit-scrollbar { display: none; }
 #sidebar .sidebar-logo {
   padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: .75rem;
   border-bottom: 1px solid rgba(255,255,255,.06);
