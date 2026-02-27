@@ -1,6 +1,74 @@
 {
   "version": "1.0.0",
-  "_comment": "Dit bestand is een offline fallback. De live marketplace wordt beheerd via https://github.com/rorymeijer/roictcms_modules/blob/main/marketplace.json",
+  "updated": "2026-02-26",
+  "_comment": "Dit bestand is een offline fallback. De live marketplace wordt beheerd via https://github.com/rorymeijer/roictcms_themes/blob/main/marketplace.json",
   "modules": [],
-  "themes": []
+  "themes": [
+    {
+      "slug": "roict-basic",
+      "name": "ROICT Basic",
+      "description": "Clean, modern en responsive standaardthema. Meegeleverd met het CMS.",
+      "version": "1.0.0",
+      "author": "ROICT",
+      "downloads": 0,
+      "rating": 5.0,
+      "price": "free",
+      "included": true
+    },
+    {
+      "slug": "roict-black",
+      "name": "ROICT Black",
+      "description": "Clean, modern en responsive standaardthema in het Zwart.",
+      "version": "1.0.0",
+      "author": "ROICT",
+      "downloads": 0,
+      "rating": 5.0,
+      "price": "free",
+      "download_url": "https://raw.githubusercontent.com/rorymeijer/roictcms_themes/main/roict-black.zip"
+    },
+    {
+      "slug": "roict-green",
+      "name": "ROICT Green",
+      "description": "Clean, modern en responsive standaardthema in het Groen.",
+      "version": "1.0.0",
+      "author": "ROICT",
+      "downloads": 0,
+      "rating": 5.0,
+      "price": "free",
+      "download_url": "https://raw.githubusercontent.com/rorymeijer/roictcms_themes/main/roict-green.zip"
+    },
+    {
+      "slug": "roict-premium",
+      "name": "ROICT Premium",
+      "description": "Clean, modern en responsive standaardthema in Premium stijl.",
+      "version": "1.0.0",
+      "author": "ROICT",
+      "downloads": 0,
+      "rating": 5.0,
+      "price": "free",
+      "download_url": "https://raw.githubusercontent.com/rorymeijer/roictcms_themes/main/roict-premium.zip"
+    },
+    {
+      "slug": "roict-red",
+      "name": "ROICT Red",
+      "description": "Clean, modern en responsive standaardthema in het Rood.",
+      "version": "1.0.0",
+      "author": "ROICT",
+      "downloads": 0,
+      "rating": 5.0,
+      "price": "free",
+      "download_url": "https://raw.githubusercontent.com/rorymeijer/roictcms_themes/main/roict-red.zip"
+    },
+    {
+      "slug": "roict-vip",
+      "name": "ROICT VIP",
+      "description": "Clean, modern en responsive standaardthema in VIP stijl.",
+      "version": "1.0.0",
+      "author": "ROICT",
+      "downloads": 0,
+      "rating": 5.0,
+      "price": "free",
+      "download_url": "https://raw.githubusercontent.com/rorymeijer/roictcms_themes/main/roict-vip.zip"
+    }
+  ]
 }
