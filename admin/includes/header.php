@@ -34,8 +34,9 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh;
   background: var(--sidebar-bg); display: flex; flex-direction: column;
   z-index: 500; transition: transform .25s ease; overflow-y: auto; overflow-x: hidden;
-  transform: translateX(0);
+  transform: translateX(0); scrollbar-width: none; -ms-overflow-style: none;
 }
+#sidebar::-webkit-scrollbar { display: none; }
 #sidebar .sidebar-logo {
   padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: .75rem;
   border-bottom: 1px solid rgba(255,255,255,.06);
@@ -210,6 +211,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 .market-price.free { color: #059669; }
 .market-price.paid { color: var(--primary); }
 </style>
+<?php do_action('admin_head'); ?>
 </head>
 <body>
 
@@ -254,6 +256,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       <i class="bi bi-shop"></i> Marketplace
     </a>
 
+    <?php do_action('admin_sidebar_nav', $activePage ?? ''); ?>
     <div class="separator mx-3 my-2"></div>
     <a href="<?= BASE_URL ?>/admin/settings/" class="nav-link <?= ($activePage ?? '') === 'settings' ? 'active' : '' ?>">
       <i class="bi bi-gear"></i> Instellingen
