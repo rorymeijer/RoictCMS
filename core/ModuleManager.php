@@ -9,15 +9,16 @@ class ModuleManager {
 
     // Boot alle actieve modules (laad hun init.php)
     public static function bootModules(): void {
-        // Fix modules met NULL versie door module.json te lezen
-        $nullVersions = self::$db->fetchAll(
-            "SELECT slug FROM `" . DB_PREFIX . "modules` WHERE version IS NULL OR version = ''"
+        // Synchroniseer versies van alle modules met hun module.json
+        // (vangt zowel NULL-versies als versieveranderingen na een update op)
+        $allModules = self::$db->fetchAll(
+            "SELECT slug, version FROM `" . DB_PREFIX . "modules`"
         );
-        foreach ($nullVersions as $m) {
+        foreach ($allModules as $m) {
             $jsonFile = MODULES_PATH . '/' . $m['slug'] . '/module.json';
             if (file_exists($jsonFile)) {
                 $info = json_decode(file_get_contents($jsonFile), true) ?? [];
-                if (!empty($info['version'])) {
+                if (!empty($info['version']) && $info['version'] !== ($m['version'] ?? '')) {
                     self::$db->update(DB_PREFIX . 'modules', ['version' => $info['version']], 'slug = ?', [$m['slug']]);
                 }
             }
@@ -360,18 +361,19 @@ class ModuleManager {
             return ['success' => false, 'message' => 'Module is niet geïnstalleerd.'];
         }
 
-        // Bewaar huidige status (active/inactive)
-        $current = self::$db->fetch("SELECT status FROM `" . DB_PREFIX . "modules` WHERE slug = ?", [$slug]);
+        // Bewaar huidige status en versie (als fallback)
+        $current = self::$db->fetch("SELECT status, version FROM `" . DB_PREFIX . "modules` WHERE slug = ?", [$slug]);
         $status = $current['status'] ?? 'active';
+        $existingVersion = $current['version'] ?? null;
 
         // Download en overschrijf de module map
         $result = self::downloadAndExtract($downloadUrl, MODULES_PATH, $slug);
         if (!$result['success']) return $result;
 
-        // Lees nieuwe versie uit module.json
+        // Lees nieuwe versie uit module.json; val terug op bestaande versie als er geen is
         $jsonFile = MODULES_PATH . '/' . $slug . '/module.json';
         $info = file_exists($jsonFile) ? (json_decode(file_get_contents($jsonFile), true) ?? []) : [];
-        $newVersion = $info['version'] ?? null;
+        $newVersion = $info['version'] ?? $existingVersion;
 
         // Update versie in database, behoud status
         self::$db->update(DB_PREFIX . 'modules', [
