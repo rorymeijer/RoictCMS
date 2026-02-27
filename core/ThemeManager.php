@@ -40,6 +40,7 @@ class ThemeManager {
 
     // ── Marketplace ophalen van GitHub ────────────────────────────────────
     public static function getMarketplace(): array {
+        // Primaire bron: GitHub (altijd actueel)
         $ctx = stream_context_create([
             'http' => [
                 'timeout'    => 8,
@@ -53,6 +54,16 @@ class ThemeManager {
                 return $parsed['themes'];
             }
         }
+
+        // Fallback: lokale marketplace.json (offline / GitHub onbereikbaar)
+        $localFile = BASE_PATH . '/api/marketplace.json';
+        if (file_exists($localFile)) {
+            $parsed = json_decode(file_get_contents($localFile), true) ?? [];
+            if (!empty($parsed['themes'])) {
+                return $parsed['themes'];
+            }
+        }
+
         return [];
     }
 
