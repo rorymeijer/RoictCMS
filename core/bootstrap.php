@@ -69,7 +69,8 @@ function csrf_field(): string {
 }
 
 function csrf_verify(): bool {
-    return isset($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token']);
+    $token = $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? '';
+    return $token !== '' && hash_equals($_SESSION['csrf_token'] ?? '', $token);
 }
 
 // Sanitize helpers
