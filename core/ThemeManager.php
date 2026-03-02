@@ -130,10 +130,14 @@ class ThemeManager {
         @unlink($tmpZip);
 
         // Bepaal bronmap (GitHub submap zoals "mytheme-main/")
+        // Filter __MACOSX (macOS zip-artifact) en verborgen bestanden
         $sourceDir = $tmpExtract;
-        $entries = array_filter(scandir($tmpExtract), fn($e) => $e !== '.' && $e !== '..');
+        $entries = array_values(array_filter(
+            scandir($tmpExtract),
+            fn($e) => $e !== '.' && $e !== '..' && $e !== '__MACOSX' && !str_starts_with($e, '.')
+        ));
         if (count($entries) === 1) {
-            $sub = $tmpExtract . '/' . reset($entries);
+            $sub = $tmpExtract . '/' . $entries[0];
             if (is_dir($sub)) $sourceDir = $sub;
         }
 
