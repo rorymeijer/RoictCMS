@@ -31,7 +31,8 @@
     </header>
 
     <?php if ($post['featured_image']): ?>
-    <img src="<?= BASE_URL ?>/uploads/<?= e($post['featured_image']) ?>" alt="<?= e($post['title']) ?>" style="width:100%;border-radius:16px;margin-bottom:2rem;">
+    <?php $fi = $post['featured_image']; $fiSrc = (strpos($fi, '://') !== false) ? $fi : BASE_URL . '/uploads/' . $fi; ?>
+    <img src="<?= e($fiSrc) ?>" alt="<?= e($post['title']) ?>" style="width:100%;border-radius:16px;margin-bottom:2rem;">
     <?php endif; ?>
 
     <!-- Article body -->

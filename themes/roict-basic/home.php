@@ -31,7 +31,8 @@
       <article class="news-card">
         <div class="news-card-image">
           <?php if ($post['featured_image']): ?>
-          <img src="<?= BASE_URL ?>/uploads/<?= e($post['featured_image']) ?>" alt="<?= e($post['title']) ?>">
+          <?php $fi = $post['featured_image']; $fiSrc = (strpos($fi, '://') !== false) ? $fi : BASE_URL . '/uploads/' . $fi; ?>
+          <img src="<?= e($fiSrc) ?>" alt="<?= e($post['title']) ?>">
           <?php else: ?>
           <span class="placeholder"><i class="bi bi-newspaper"></i></span>
           <?php endif; ?>
