@@ -120,6 +120,8 @@ add_action('admin_footer', function () {
     var searchInput = modal.querySelector('#wysiwyg-media-search-input');
     if (searchInput) searchInput.value = '';
 
+    // Edge fallback: force zichtbaar maken naast de CSS class-toggle.
+    modal.style.display = 'flex';
     modal.classList.add('wysiwyg-media-open');
     document.body.style.overflow = 'hidden';
     loadMediaItems();
@@ -128,6 +130,7 @@ add_action('admin_footer', function () {
   function closeMediaModal() {
     var modal = document.getElementById('wysiwyg-media-modal');
     if (modal) modal.classList.remove('wysiwyg-media-open');
+    if (modal) modal.style.display = 'none';
     document.body.style.overflow = '';
     _currentInsertCallback = null;
   }
@@ -204,8 +207,8 @@ add_action('admin_footer', function () {
   function filterMediaItems(query) {
     var tiles = document.querySelectorAll('#wysiwyg-media-body .wysiwyg-media-tile');
     var visible = 0;
-    tiles.forEach(function (tile) {
-      var match = !query || (tile.dataset.name || '').includes(query);
+    forEachNode(tiles, function (tile) {
+      var match = !query || ((tile.dataset.name || '').indexOf(query) !== -1);
       tile.style.display = match ? '' : 'none';
       if (match) visible++;
     });
@@ -218,6 +221,11 @@ add_action('admin_footer', function () {
   }
   function escapeAttr(str) {
     return String(str).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function forEachNode(list, callback) {
+    if (!list || !callback) return;
+    for (var i = 0; i < list.length; i++) callback(list[i], i);
   }
 
   // Expose openMediaModal globally so other admin pages (e.g. the featured
@@ -235,7 +243,7 @@ add_action('admin_footer', function () {
       'textarea[name="content"], textarea[data-wysiwyg]'
     );
 
-    candidates.forEach(function (textarea) {
+    forEachNode(candidates, function (textarea) {
       // Sla over als expliciet uitgesloten of al omgezet
       if (textarea.dataset.wysiwyg === 'false') return;
       if (textarea.dataset.wysiwygInit)          return;
