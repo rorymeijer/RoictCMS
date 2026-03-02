@@ -20,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
         'meta_title' => trim($_POST['meta_title'] ?? ''),
         'meta_desc' => trim($_POST['meta_desc'] ?? ''),
         'status' => in_array($_POST['status'] ?? '', ['published', 'draft']) ? $_POST['status'] : 'draft',
+        'featured_image' => trim($_POST['featured_image'] ?? '') ?: null,
     ];
     if ($_POST['status'] === 'published' && !$post['published_at']) {
         $data['published_at'] = date('Y-m-d H:i:s');
@@ -109,12 +110,41 @@ require_once __DIR__ . '/../includes/header.php';
       <div class="cms-card">
         <div class="cms-card-header"><span class="cms-card-title">Uitgelichte Afbeelding</span></div>
         <div class="cms-card-body">
-          <div class="border rounded p-3 text-center text-muted" style="border-style:dashed!important;cursor:pointer;">
-            <i class="bi bi-image" style="font-size:2rem;display:block;margin-bottom:.5rem;"></i>
-            <small>Klik om afbeelding te selecteren</small>
+          <input type="hidden" name="featured_image" id="featured-image-url" value="<?= e($post['featured_image'] ?? '') ?>">
+          <div id="featured-image-picker" class="border rounded p-3 text-center text-muted" style="border-style:dashed!important;cursor:pointer;" onclick="openFeaturedImagePicker()">
+            <?php if (!empty($post['featured_image'])): ?>
+            <img id="featured-image-preview" src="<?= e($post['featured_image']) ?>" alt="" style="max-width:100%;border-radius:8px;margin-bottom:.5rem;">
+            <?php else: ?>
+            <i id="featured-image-icon" class="bi bi-image" style="font-size:2rem;display:block;margin-bottom:.5rem;"></i>
+            <small id="featured-image-label">Klik om afbeelding te selecteren</small>
+            <?php endif; ?>
           </div>
+          <?php if (!empty($post['featured_image'])): ?>
+          <button type="button" class="btn btn-outline-secondary btn-sm mt-2 w-100" onclick="removeFeaturedImage()"><i class="bi bi-x-lg me-1"></i> Verwijderen</button>
+          <?php else: ?>
+          <button type="button" class="btn btn-outline-secondary btn-sm mt-2 w-100" id="featured-remove-btn" style="display:none;" onclick="removeFeaturedImage()"><i class="bi bi-x-lg me-1"></i> Verwijderen</button>
+          <?php endif; ?>
         </div>
       </div>
+<script>
+function openFeaturedImagePicker() {
+  if (typeof openMediaModal !== 'function') return;
+  openMediaModal(function(url) {
+    document.getElementById('featured-image-url').value = url;
+    var picker = document.getElementById('featured-image-picker');
+    picker.innerHTML = '<img src="' + url + '" alt="" style="max-width:100%;border-radius:8px;">';
+    var removeBtn = document.getElementById('featured-remove-btn');
+    if (removeBtn) removeBtn.style.display = '';
+  });
+}
+function removeFeaturedImage() {
+  document.getElementById('featured-image-url').value = '';
+  var picker = document.getElementById('featured-image-picker');
+  picker.innerHTML = '<i class="bi bi-image" style="font-size:2rem;display:block;margin-bottom:.5rem;"></i><small>Klik om afbeelding te selecteren</small>';
+  var removeBtn = document.getElementById('featured-remove-btn');
+  if (removeBtn) removeBtn.style.display = 'none';
+}
+</script>
     </div>
   </div>
 </form>
