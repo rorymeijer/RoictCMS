@@ -50,6 +50,11 @@
         <a href="https://www.linkedin.com/shareArticle?url=<?= urlencode(BASE_URL . '/news/' . $post['slug']) ?>" target="_blank" class="btn btn-sm" style="background:#0077b5;color:white;border-radius:9px;"><i class="bi bi-linkedin"></i></a>
       </div>
     </div>
+
+    <?php if (function_exists('comments_section')): ?>
+    <?= comments_section('/news/' . $post['slug']) ?>
+    <?php endif; ?>
+
   </div>
 </article>
 <?php endif; ?>
