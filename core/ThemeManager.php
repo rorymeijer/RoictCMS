@@ -30,6 +30,18 @@ class ThemeManager {
         return false;
     }
 
+    public static function delete(string $slug): array {
+        if ($slug === self::getActive()) {
+            return ['success' => false, 'message' => 'Het actieve thema kan niet worden verwijderd.'];
+        }
+        $themeDir = THEMES_PATH . '/' . $slug;
+        if (!is_dir($themeDir)) {
+            return ['success' => false, 'message' => 'Thema niet gevonden.'];
+        }
+        self::rrmdir($themeDir);
+        return ['success' => true, 'message' => 'Thema verwijderd.'];
+    }
+
     public static function getThemePath(): string {
         return THEMES_PATH . '/' . self::getActive();
     }
