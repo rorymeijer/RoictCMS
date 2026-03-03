@@ -39,7 +39,7 @@ function runInstall(array $db, array $site, array $admin): array {
             username VARCHAR(60) NOT NULL UNIQUE,
             email VARCHAR(150) NOT NULL UNIQUE,
             password VARCHAR(255) NOT NULL,
-            role ENUM('admin','editor','author') DEFAULT 'author',
+            role ENUM('admin','editor','author','lid') DEFAULT 'author',
             avatar VARCHAR(255),
             status ENUM('active','inactive') DEFAULT 'active',
             last_login DATETIME,

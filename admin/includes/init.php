@@ -9,3 +9,10 @@ if (!INSTALLED) {
 }
 
 Auth::requireLogin();
+
+// Lid-rol heeft standaard alleen toegang tot de front end.
+// Alleen als een custom rol het overschrijft mag een lid het beheergedeelte in.
+if (($_SESSION['user_role'] ?? '') === 'lid' && !Auth::canAccessBackend()) {
+    header('Location: ' . BASE_URL . '/');
+    exit;
+}

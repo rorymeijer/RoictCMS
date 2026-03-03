@@ -24,6 +24,24 @@ function do_action(string $hook, ...$args): void {
     }
 }
 
+// ── Filter systeem ────────────────────────────────────────────────────────
+$GLOBALS['_cms_filters'] = [];
+
+function add_filter(string $hook, callable $callback, int $priority = 10): void {
+    $GLOBALS['_cms_filters'][$hook][$priority][] = $callback;
+}
+
+function apply_filters(string $hook, mixed $value, mixed ...$args): mixed {
+    $hooks = $GLOBALS['_cms_filters'][$hook] ?? [];
+    ksort($hooks);
+    foreach ($hooks as $callbacks) {
+        foreach ($callbacks as $cb) {
+            $value = $cb($value, ...$args);
+        }
+    }
+    return $value;
+}
+
 // ── Shortcode systeem ─────────────────────────────────────────────────────
 $GLOBALS['_cms_shortcodes'] = [];
 
