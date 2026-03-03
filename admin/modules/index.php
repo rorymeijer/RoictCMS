@@ -49,6 +49,11 @@ require_once __DIR__ . '/../includes/header.php';
       <td class="text-muted"><?= date('d M Y', strtotime($m['installed_at'])) ?></td>
       <td>
         <div class="action-btns">
+          <?php if ($m['status'] === 'active' && file_exists(MODULES_PATH . '/' . $m['slug'] . '/admin/index.php')): ?>
+          <a href="<?= BASE_URL ?>/modules/<?= e($m['slug']) ?>/admin/" class="btn btn-sm btn-outline-primary btn-icon" title="Beheer">
+            <i class="bi bi-gear"></i>
+          </a>
+          <?php endif; ?>
           <button onclick="toggleModule('<?= e($m['slug']) ?>')" class="btn btn-sm btn-outline-secondary btn-icon" title="<?= $m['status'] === 'active' ? 'Deactiveren' : 'Activeren' ?>">
             <i class="bi bi-<?= $m['status'] === 'active' ? 'pause' : 'play' ?>-fill"></i>
           </button>
