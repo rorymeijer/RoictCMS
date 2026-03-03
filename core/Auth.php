@@ -44,10 +44,21 @@ class Auth {
         }
     }
 
+    public static function canAccessBackend(): bool {
+        if (!self::isLoggedIn()) {
+            return false;
+        }
+        if (self::isAdmin()) {
+            return true;
+        }
+        $userId = (int) ($_SESSION['user_id'] ?? 0);
+        return (bool) apply_filters('user_can_access_backend', false, $userId);
+    }
+
     public static function requireAdmin(): void {
         self::requireLogin();
-        if (!self::isAdmin()) {
-            header('Location: ' . BASE_URL . '/admin/');
+        if (!self::canAccessBackend()) {
+            header('Location: ' . BASE_URL . '/');
             exit;
         }
     }

@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
     $data = [
         'username' => trim($_POST['username'] ?? ''),
         'email' => trim($_POST['email'] ?? ''),
-        'role' => in_array($_POST['role'] ?? '', ['admin', 'editor', 'author']) ? $_POST['role'] : 'author',
+        'role' => in_array($_POST['role'] ?? '', ['admin', 'editor', 'author', 'lid']) ? $_POST['role'] : 'author',
         'status' => in_array($_POST['status'] ?? '', ['active', 'inactive']) ? $_POST['status'] : 'active',
     ];
     $password = trim($_POST['password'] ?? '');
@@ -57,6 +57,7 @@ require_once __DIR__ . '/../includes/header.php';
         <div class="col-md-6">
           <label class="form-label">Rol</label>
           <select class="form-select" name="role">
+            <option value="lid" <?= ($user['role'] ?? '') === 'lid' ? 'selected' : '' ?>>Lid (alleen frontend)</option>
             <option value="author" <?= ($user['role'] ?? 'author') === 'author' ? 'selected' : '' ?>>Auteur</option>
             <option value="editor" <?= ($user['role'] ?? '') === 'editor' ? 'selected' : '' ?>>Redacteur</option>
             <option value="admin" <?= ($user['role'] ?? '') === 'admin' ? 'selected' : '' ?>>Beheerder</option>
