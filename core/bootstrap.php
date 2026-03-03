@@ -72,6 +72,12 @@ if (INSTALLED) {
     Settings::init();
     ModuleManager::init();
     ModuleManager::bootModules();
+
+    // Auto-run pending database migrations (runs once, tracked via db_schema_version setting)
+    $migrationFile = __DIR__ . '/migrations.php';
+    if (file_exists($migrationFile) && version_compare(Settings::get('db_schema_version') ?? '0', '1.0.1', '<')) {
+        require_once $migrationFile;
+    }
 }
 
 // CSRF helpers

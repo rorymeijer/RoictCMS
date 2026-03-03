@@ -39,7 +39,7 @@ require_once __DIR__ . '/../includes/header.php';
       </td>
       <td class="text-muted"><?= e($u['email']) ?></td>
       <td>
-        <?php $roles = ['admin' => ['primary','Admin'], 'editor' => ['success','Redacteur'], 'author' => ['secondary','Auteur']]; $r = $roles[$u['role']] ?? ['secondary',$u['role']]; ?>
+        <?php $roles = ['admin' => ['primary','Admin'], 'editor' => ['success','Redacteur'], 'author' => ['secondary','Auteur'], 'lid' => ['info','Lid']]; $r = $roles[$u['role']] ?? ['secondary',$u['role']]; ?>
         <span class="badge bg-<?= $r[0] ?>"><?= $r[1] ?></span>
       </td>
       <td class="text-muted"><?= $u['last_login'] ? date('d M Y H:i', strtotime($u['last_login'])) : 'Nooit' ?></td>
