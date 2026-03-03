@@ -4,9 +4,18 @@ Auth::requireAdmin();
 $pageTitle = "Thema's";
 $activePage = 'themes';
 
-if ($_POST['activate'] ?? '') {
-    if (ThemeManager::activate($_POST['activate'])) {
-        flash('success', 'Thema geactiveerd.');
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!csrf_verify()) {
+        flash('error', 'Ongeldige aanvraag.');
+        redirect(BASE_URL . '/admin/themes/');
+    }
+    if ($_POST['activate'] ?? '') {
+        if (ThemeManager::activate($_POST['activate'])) {
+            flash('success', 'Thema geactiveerd.');
+        }
+    } elseif ($_POST['delete'] ?? '') {
+        $result = ThemeManager::delete($_POST['delete']);
+        flash($result['success'] ? 'success' : 'error', $result['message']);
     }
     redirect(BASE_URL . '/admin/themes/');
 }
@@ -45,11 +54,18 @@ require_once __DIR__ . '/../includes/header.php';
       <div class="text-muted mb-1" style="font-size:.8rem;">Versie <?= e($theme['version'] ?? '1.0') ?> · <?= e($theme['author'] ?? 'ROICT') ?></div>
       <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:1rem;"><?= e($theme['description'] ?? '') ?></p>
       <?php if (!$isActive): ?>
-      <form method="POST">
-        <?= csrf_field() ?>
-        <input type="hidden" name="activate" value="<?= e($theme['slug']) ?>">
-        <button type="submit" class="btn btn-primary btn-sm w-100"><i class="bi bi-palette me-1"></i> Activeren</button>
-      </form>
+      <div class="d-flex gap-2">
+        <form method="POST" class="flex-grow-1">
+          <?= csrf_field() ?>
+          <input type="hidden" name="activate" value="<?= e($theme['slug']) ?>">
+          <button type="submit" class="btn btn-primary btn-sm w-100"><i class="bi bi-palette me-1"></i> Activeren</button>
+        </form>
+        <form method="POST" onsubmit="return confirm('Weet je zeker dat je het thema \"<?= e($theme['name'] ?? $theme['slug']) ?>\" wilt verwijderen?');">
+          <?= csrf_field() ?>
+          <input type="hidden" name="delete" value="<?= e($theme['slug']) ?>">
+          <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
+        </form>
+      </div>
       <?php else: ?>
       <button class="btn btn-success btn-sm w-100" disabled><i class="bi bi-check-circle me-1"></i> Huidig thema</button>
       <?php endif; ?>
