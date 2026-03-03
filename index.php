@@ -86,7 +86,27 @@ if ($route === 'news' && $slug) {
 
 // Static page: /[slug] or /
 if (empty($route)) {
-    // Homepage — show latest news as hero
+    $homepageType   = Settings::get('homepage_type', 'default');
+    $homepagePageId = (int)Settings::get('homepage_page_id', 0);
+
+    if ($homepageType === 'page' && $homepagePageId > 0) {
+        $page = $db->fetch(
+            "SELECT * FROM `" . DB_PREFIX . "pages` WHERE id = ? AND status = 'published'",
+            [$homepagePageId]
+        );
+        if ($page) {
+            $metaTitle   = $page['meta_title'] ?: $page['title'];
+            $metaDesc    = $page['meta_desc'] ?? '';
+            $currentSlug = $page['slug'];
+            $currentPage = 'home';
+            include themeFile('header.php');
+            include themeFile('page.php');
+            include themeFile('footer.php');
+            exit;
+        }
+    }
+
+    // Default homepage — show latest news as hero
     $perPage = (int)Settings::get('posts_per_page', 10);
     $total = $db->fetch("SELECT COUNT(*) as c FROM `" . DB_PREFIX . "news` WHERE status = 'published'")['c'];
     $posts = $db->fetchAll("SELECT n.*, u.username, c.name as cat_name FROM `" . DB_PREFIX . "news` n LEFT JOIN `" . DB_PREFIX . "users` u ON n.author_id = u.id LEFT JOIN `" . DB_PREFIX . "categories` c ON n.category_id = c.id WHERE n.status = 'published' ORDER BY n.published_at DESC LIMIT 6");
