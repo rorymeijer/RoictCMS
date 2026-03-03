@@ -30,9 +30,19 @@ class ThemeManager {
         return false;
     }
 
+    public static function isLocked(string $slug): bool {
+        $jsonFile = THEMES_PATH . '/' . $slug . '/theme.json';
+        if (!file_exists($jsonFile)) return false;
+        $info = json_decode(file_get_contents($jsonFile), true) ?? [];
+        return !empty($info['locked']);
+    }
+
     public static function delete(string $slug): array {
         if ($slug === self::getActive()) {
             return ['success' => false, 'message' => 'Het actieve thema kan niet worden verwijderd.'];
+        }
+        if (self::isLocked($slug)) {
+            return ['success' => false, 'message' => 'Dit thema is beveiligd en kan niet worden verwijderd.'];
         }
         $themeDir = THEMES_PATH . '/' . $slug;
         if (!is_dir($themeDir)) {
@@ -85,6 +95,9 @@ class ThemeManager {
         $themeDir = THEMES_PATH . '/' . $slug;
         if (!is_dir($themeDir)) {
             return ['success' => false, 'message' => 'Thema is niet geïnstalleerd.'];
+        }
+        if (self::isLocked($slug)) {
+            return ['success' => false, 'message' => 'Dit thema is beveiligd en kan alleen via het CMS worden bijgewerkt.'];
         }
 
         // Verwijder huidige map en herinstalleer

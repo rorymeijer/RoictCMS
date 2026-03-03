@@ -4,5 +4,6 @@
   "author": "ROICT",
   "description": "A clean, modern and responsive default theme for ROICT CMS with dark/light mode support.",
   "screenshot": "screenshot.png",
-  "supports": ["menus", "featured-images", "widgets"]
+  "supports": ["menus", "featured-images", "widgets"],
+  "locked": true
 }

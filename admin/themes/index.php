@@ -59,11 +59,12 @@ require_once __DIR__ . '/../includes/header.php';
 <div class="row g-3">
 <?php foreach ($themes as $theme): ?>
 <?php
-  $isActive = $theme['slug'] === $activeTheme;
+  $isActive  = $theme['slug'] === $activeTheme;
+  $isLocked  = !empty($theme['locked']);
   $localVer  = $theme['version'] ?? '1.0';
   $remoteInfo = $remoteThemeVersions[$theme['slug']] ?? null;
   $remoteVer  = $remoteInfo['version'] ?? '0';
-  $hasUpdate  = $remoteInfo && version_compare($remoteVer, $localVer, '>');
+  $hasUpdate  = !$isLocked && $remoteInfo && version_compare($remoteVer, $localVer, '>');
   $updateUrl  = $remoteInfo['download_url'] ?? '';
 ?>
 <div class="col-md-6 col-lg-4">
@@ -83,6 +84,11 @@ require_once __DIR__ . '/../includes/header.php';
         <i class="bi bi-arrow-up-circle me-1"></i> v<?= e($remoteVer) ?>
       </div>
       <?php endif; ?>
+      <?php if ($isLocked): ?>
+      <div style="position:absolute;top:.75rem;left:.75rem;background:#64748b;color:white;padding:.25rem .6rem;border-radius:999px;font-size:.7rem;font-weight:700;" title="Dit thema is beveiligd en kan alleen via het CMS worden bijgewerkt.">
+        <i class="bi bi-lock me-1"></i> Beveiligd
+      </div>
+      <?php endif; ?>
     </div>
     <div class="cms-card-body">
       <div class="fw-bold mb-1"><?= e($theme['name'] ?? $theme['slug']) ?></div>
@@ -100,11 +106,15 @@ require_once __DIR__ . '/../includes/header.php';
           <i class="bi bi-arrow-up-circle"></i>
         </button>
         <?php endif; ?>
+        <?php if (!$isLocked): ?>
         <form method="POST" onsubmit="return confirm('Weet je zeker dat je het thema \"<?= e($theme['name'] ?? $theme['slug']) ?>\" wilt verwijderen?');">
           <?= csrf_field() ?>
           <input type="hidden" name="delete" value="<?= e($theme['slug']) ?>">
           <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
         </form>
+        <?php else: ?>
+        <button class="btn btn-secondary btn-sm" disabled title="Dit thema is beveiligd en kan niet worden verwijderd."><i class="bi bi-lock"></i></button>
+        <?php endif; ?>
       </div>
       <?php else: ?>
       <div class="d-flex gap-2">
@@ -113,6 +123,9 @@ require_once __DIR__ . '/../includes/header.php';
         <button class="btn btn-warning btn-sm" onclick="updateTheme('<?= e($theme['slug']) ?>', '<?= e($updateUrl) ?>', this)" title="Bijwerken naar v<?= e($remoteVer) ?>">
           <i class="bi bi-arrow-up-circle"></i>
         </button>
+        <?php endif; ?>
+        <?php if ($isLocked): ?>
+        <button class="btn btn-secondary btn-sm" disabled title="Dit thema is beveiligd en kan alleen via het CMS worden bijgewerkt."><i class="bi bi-lock"></i></button>
         <?php endif; ?>
       </div>
       <?php endif; ?>
