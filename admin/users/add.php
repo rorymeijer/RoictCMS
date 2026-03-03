@@ -26,9 +26,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
             $db->update(DB_PREFIX . 'users', $data, 'id = ?', [$id]);
             flash('success', 'Gebruiker bijgewerkt.');
         } else {
-            $db->insert(DB_PREFIX . 'users', $data);
+            $id = $db->insert(DB_PREFIX . 'users', $data);
             flash('success', 'Gebruiker aangemaakt.');
         }
+        do_action('admin_user_saved', $id, $isEdit);
         redirect(BASE_URL . '/admin/users/');
     }
 }
@@ -69,6 +70,7 @@ require_once __DIR__ . '/../includes/header.php';
           </select>
         </div>
       </div>
+      <?php do_action('admin_user_form_fields', $user ?? null, $id); ?>
       <button type="submit" class="btn btn-primary w-100"><i class="bi bi-check-lg me-1"></i> <?= $isEdit ? 'Wijzigingen opslaan' : 'Gebruiker aanmaken' ?></button>
     </form>
   </div>
