@@ -61,12 +61,17 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
         <?php if ($updateInfo['update_available'] && !empty($updateInfo['changelog'])): ?>
         <div class="mb-3">
-          <div class="fw-semibold mb-2">Wijzigingen in v<?= e($updateInfo['latest']) ?>:</div>
-          <ul class="mb-0" style="font-size:.85rem;color:var(--text-muted);">
+          <div class="fw-semibold mb-2" style="font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);">
+            <i class="bi bi-journal-text me-1"></i>Wijzigingen in v<?= e($updateInfo['latest']) ?>
+          </div>
+          <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:.75rem 1rem;display:flex;flex-direction:column;gap:.4rem;">
             <?php foreach ($updateInfo['changelog'] as $change): ?>
-            <li><?= e($change) ?></li>
+            <div style="display:flex;align-items:flex-start;gap:.6rem;font-size:.84rem;color:var(--text);">
+              <i class="bi bi-check2-circle" style="color:#059669;font-size:.9rem;margin-top:.05rem;flex-shrink:0;"></i>
+              <span><?= e($change) ?></span>
+            </div>
             <?php endforeach; ?>
-          </ul>
+          </div>
         </div>
         <?php endif; ?>
       </div>
