@@ -49,22 +49,49 @@ function add_shortcode(string $tag, callable $callback): void {
     $GLOBALS['_cms_shortcodes'][$tag] = $callback;
 }
 
+function shortcode_parse_atts(string $text): array {
+    $atts = [];
+    $text = trim($text);
+    if ($text === '') return $atts;
+    $pattern = '/(\w+)=["\']([^"\']*)["\']|(\w+)=(\S+)|(\S+)/';
+    preg_match_all($pattern, $text, $matches, PREG_SET_ORDER);
+    $i = 0;
+    foreach ($matches as $match) {
+        if (!empty($match[1])) {
+            $atts[$match[1]] = $match[2];   // key="value" of key='value'
+        } elseif (!empty($match[3])) {
+            $atts[$match[3]] = $match[4];   // key=value
+        } elseif (!empty($match[5])) {
+            $atts[$i++] = $match[5];        // losse waarde → positional
+        }
+    }
+    return $atts;
+}
+
 function do_shortcode(string $content): string {
     if (empty($GLOBALS['_cms_shortcodes'])) {
         return $content;
     }
     return preg_replace_callback(
-        '/\[([a-zA-Z_][a-zA-Z0-9_-]*)\]/',
+        '/\[([a-zA-Z_][a-zA-Z0-9_-]*)([^\]]*)\]/',
         function (array $matches): string {
             $tag = $matches[1];
             if (isset($GLOBALS['_cms_shortcodes'][$tag])) {
-                return (string) call_user_func($GLOBALS['_cms_shortcodes'][$tag]);
+                $args = shortcode_parse_atts($matches[2]);
+                return (string) call_user_func($GLOBALS['_cms_shortcodes'][$tag], $args);
             }
             return $matches[0];
         },
         $content
     ) ?? $content;
 }
+
+
+
+
+
+
+
 
 // Init services that need DB
 if (INSTALLED) {
