@@ -26,7 +26,9 @@
         foreach ($navPages as $np): ?>
         <li><a href="<?= BASE_URL ?>/<?= e($np['slug']) ?>" class="<?= $currentSlug === $np['slug'] ? 'active' : '' ?>"><?= e($np['title']) ?></a></li>
         <?php endforeach; ?>
-        <li><a href="<?= BASE_URL ?>/news" class="<?= ($currentPage ?? '') === 'news' ? 'active' : '' ?>">Nieuws</a></li>
+        <?php if (Settings::get('news_page_enabled', '1')): ?>
+        <li><a href="<?= BASE_URL ?>/news" class="<?= ($currentPage ?? '') === 'news' ? 'active' : '' ?>"><?= e(Settings::get('news_page_title', 'Nieuws')) ?></a></li>
+        <?php endif; ?>
       </ul>
       <div class="nav-cta">
         <button class="nav-toggle" id="nav-toggle" aria-label="Menu">

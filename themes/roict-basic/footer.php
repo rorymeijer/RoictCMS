@@ -9,7 +9,9 @@
         <h5>Navigatie</h5>
         <ul>
           <li><a href="<?= BASE_URL ?>/">Home</a></li>
-          <li><a href="<?= BASE_URL ?>/news">Nieuws</a></li>
+          <?php if (Settings::get('news_page_enabled', '1')): ?>
+          <li><a href="<?= BASE_URL ?>/news"><?= e(Settings::get('news_page_title', 'Nieuws')) ?></a></li>
+          <?php endif; ?>
           <?php
           $db = Database::getInstance();
           $footerPages = $db->fetchAll("SELECT title, slug FROM `" . DB_PREFIX . "pages` WHERE status='published' ORDER BY id LIMIT 5");

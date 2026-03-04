@@ -26,7 +26,10 @@ require_once __DIR__ . '/../includes/header.php';
     <h1 style="font-size:1.4rem;font-weight:800;margin:0;">Nieuwsberichten</h1>
     <p class="text-muted mb-0" style="font-size:.85rem;"><?= $total ?> berichten totaal</p>
   </div>
-  <a href="add.php" class="quick-add-btn"><i class="bi bi-plus-lg"></i> Nieuw Bericht</a>
+  <div class="d-flex gap-2">
+    <a href="settings.php" class="btn btn-outline-secondary btn-sm"><i class="bi bi-gear"></i> Instellingen</a>
+    <a href="add.php" class="quick-add-btn"><i class="bi bi-plus-lg"></i> Nieuw Bericht</a>
+  </div>
 </div>
 
 <div class="cms-card">

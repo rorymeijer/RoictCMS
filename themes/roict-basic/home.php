@@ -9,7 +9,9 @@
       <h1><?= e(Settings::get('site_name')) ?><br><em><?= e(Settings::get('site_tagline', 'Uw online thuis')) ?></em></h1>
       <p>Blijf op de hoogte van het laatste nieuws en updates. Ontdek onze pagina's en lees meer over onze organisatie.</p>
       <div class="hero-actions">
-        <a href="<?= BASE_URL ?>/news" class="btn btn-primary"><i class="bi bi-newspaper"></i> Bekijk nieuws</a>
+        <?php if (Settings::get('news_page_enabled', '1')): ?>
+        <a href="<?= BASE_URL ?>/news" class="btn btn-primary"><i class="bi bi-newspaper"></i> <?= e(Settings::get('news_page_title', 'Nieuws')) ?> bekijken</a>
+        <?php endif; ?>
         <a href="<?= BASE_URL ?>/over-ons" class="btn btn-outline"><i class="bi bi-arrow-right"></i> Meer over ons</a>
       </div>
     </div>
@@ -17,6 +19,7 @@
 </section>
 
 <!-- LATEST NEWS -->
+<?php if (Settings::get('news_page_enabled', '1')): ?>
 <section class="section">
   <div class="container">
     <div class="section-title">
@@ -69,3 +72,4 @@
     <?php endif; ?>
   </div>
 </section>
+<?php endif; ?>

@@ -57,13 +57,20 @@ function themeFile(string $file): string {
 
 // News listing: /news
 if ($route === 'news' && empty($slug)) {
+    if (!Settings::get('news_page_enabled', '1')) {
+        http_response_code(404);
+        include themeFile('header.php');
+        include themeFile('404.php');
+        include themeFile('footer.php');
+        exit;
+    }
     $perPage = (int)Settings::get('posts_per_page', 10);
     $page = max(1, (int)($_GET['p'] ?? 1));
     $total = $db->fetch("SELECT COUNT(*) as c FROM `" . DB_PREFIX . "news` WHERE status = 'published'")['c'];
     $pagination = paginate($total, $perPage, $page);
     $posts = $db->fetchAll("SELECT n.*, u.username, c.name as cat_name FROM `" . DB_PREFIX . "news` n LEFT JOIN `" . DB_PREFIX . "users` u ON n.author_id = u.id LEFT JOIN `" . DB_PREFIX . "categories` c ON n.category_id = c.id WHERE n.status = 'published' ORDER BY n.published_at DESC LIMIT {$perPage} OFFSET {$pagination['offset']}");
 
-    $metaTitle = 'Nieuws';
+    $metaTitle = Settings::get('news_page_title', 'Nieuws');
     $currentPage = 'news';
     include themeFile('header.php');
     include themeFile('archive.php');
@@ -73,6 +80,13 @@ if ($route === 'news' && empty($slug)) {
 
 // Single news post: /news/[slug]
 if ($route === 'news' && $slug) {
+    if (!Settings::get('news_page_enabled', '1')) {
+        http_response_code(404);
+        include themeFile('header.php');
+        include themeFile('404.php');
+        include themeFile('footer.php');
+        exit;
+    }
     $post = $db->fetch("SELECT n.*, u.username FROM `" . DB_PREFIX . "news` n LEFT JOIN `" . DB_PREFIX . "users` u ON n.author_id = u.id WHERE n.slug = ? AND n.status = 'published'", [$slug]);
     if (!$post) { http_response_code(404); }
     $metaTitle = $post ? $post['meta_title'] ?: $post['title'] : 'Niet gevonden';

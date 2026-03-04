@@ -1,7 +1,7 @@
 <!-- Breadcrumb -->
 <div class="breadcrumb-wrap">
   <div class="container">
-    <ol><li><a href="<?= BASE_URL ?>/">Home</a></li><li>Nieuws</li></ol>
+    <ol><li><a href="<?= BASE_URL ?>/">Home</a></li><li><?= e(Settings::get('news_page_title', 'Nieuws')) ?></li></ol>
   </div>
 </div>
 
@@ -9,7 +9,7 @@
   <div class="container">
     <div class="section-title" style="text-align:left;">
       <div class="label">Alle berichten</div>
-      <h1 style="font-size:clamp(1.8rem,4vw,2.5rem);">Nieuws</h1>
+      <h1 style="font-size:clamp(1.8rem,4vw,2.5rem);"><?= e(Settings::get('news_page_title', 'Nieuws')) ?></h1>
       <p><?= $total ?> bericht<?= $total !== 1 ? 'en' : '' ?></p>
     </div>
 
