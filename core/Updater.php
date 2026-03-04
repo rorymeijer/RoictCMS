@@ -3,17 +3,8 @@ class Updater {
     // GitHub Releases API – geeft altijd de laatste release terug
     private static $releasesApiUrl = 'https://api.github.com/repos/rorymeijer/RoictCMS/releases/latest';
 
-    // Fallback: version.json op de main branch
-    private static $versionUrl = 'https://raw.githubusercontent.com/rorymeijer/RoictCMS/main/version.json';
-
-    // ── Versie check ──────────────────────────────────────────────────────
-    // Huidige versie: DB heeft voorrang (wordt bijgewerkt na update),
-    // anders valt het terug op de constante in config.php
+    // Huidige versie komt altijd uit CMS_VERSION in config.php
     public static function currentVersion(): string {
-        if (INSTALLED && class_exists('Settings')) {
-            $v = Settings::get('cms_version');
-            if ($v) return $v;
-        }
         return CMS_VERSION;
     }
 
@@ -26,12 +17,11 @@ class Updater {
             ],
         ]);
 
-        // Probeer eerst de GitHub Releases API
         $data = @file_get_contents(self::$releasesApiUrl, false, $ctx);
         if ($data) {
             $release = json_decode($data, true);
             if ($release && isset($release['tag_name'])) {
-                // tag_name kan "v1.0.36" of "1.0.36" zijn — strip de "v" prefix
+                // tag_name kan "v1.0.38" of "1.0.38" zijn — strip de "v" prefix
                 $version = ltrim($release['tag_name'], 'v');
 
                 // Kies download URL: eerst een geüpload asset (.zip), anders zipball
@@ -56,7 +46,7 @@ class Updater {
                     }
                 }
 
-                // Datum: "2026-03-03T00:00:00Z" → "2026-03-03"
+                // Datum: "2026-03-04T00:00:00Z" → "2026-03-04"
                 $releaseDate = isset($release['published_at'])
                     ? substr($release['published_at'], 0, 10)
                     : null;
@@ -68,22 +58,6 @@ class Updater {
                     'download_url'     => $downloadUrl,
                     'update_available' => version_compare($version, $current, '>'),
                     'release_date'     => $releaseDate,
-                ];
-            }
-        }
-
-        // Fallback: version.json op de main branch
-        $data = @file_get_contents(self::$versionUrl, false, $ctx);
-        if ($data) {
-            $remote = json_decode($data, true);
-            if ($remote && isset($remote['version'])) {
-                return [
-                    'current'          => $current,
-                    'latest'           => $remote['version'],
-                    'changelog'        => $remote['changelog'] ?? [],
-                    'download_url'     => $remote['download_url'] ?? null,
-                    'update_available' => version_compare($remote['version'], $current, '>'),
-                    'release_date'     => $remote['release_date'] ?? null,
                 ];
             }
         }
@@ -189,15 +163,8 @@ class Updater {
         ];
     }
 
-    // ── Lees versie uit gedownload pakket ────────────────────────────────
+    // ── Lees versie uit gedownload pakket (via core/config.php) ─────────
     private static function readVersionFromPackage(string $sourceDir): ?string {
-        // Probeer version.json in het pakket
-        $versionFile = $sourceDir . '/version.json';
-        if (file_exists($versionFile)) {
-            $data = json_decode(file_get_contents($versionFile), true);
-            if (!empty($data['version'])) return $data['version'];
-        }
-        // Fallback: lees uit core/config.php
         $configFile = $sourceDir . '/core/config.php';
         if (file_exists($configFile)) {
             $content = file_get_contents($configFile);
