@@ -62,6 +62,22 @@ class Updater {
             }
         }
 
+        // Fallback: lees version.json als de GitHub API niet bereikbaar is
+        $versionFile = BASE_PATH . '/version.json';
+        if (file_exists($versionFile)) {
+            $info = json_decode(file_get_contents($versionFile), true);
+            if ($info && isset($info['version'])) {
+                return [
+                    'current'          => $current,
+                    'latest'           => $info['version'],
+                    'changelog'        => $info['changelog'] ?? [],
+                    'download_url'     => $info['download_url'] ?? null,
+                    'update_available' => version_compare($info['version'], $current, '>'),
+                    'release_date'     => $info['release_date'] ?? null,
+                ];
+            }
+        }
+
         return [
             'current'          => $current,
             'latest'           => $current,
