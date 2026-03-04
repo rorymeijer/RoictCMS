@@ -31,7 +31,8 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 
 /* Sidebar */
 #sidebar {
-  position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh;
+  position: fixed; top: 0; left: 0; width: var(--sidebar-w);
+  height: 100vh; height: 100dvh;
   background: var(--sidebar-bg); display: flex; flex-direction: column;
   z-index: 500; transition: transform .25s ease; overflow-y: auto; overflow-x: hidden;
   transform: translateX(0); scrollbar-width: none; -ms-overflow-style: none;
@@ -70,6 +71,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 #sidebar .sidebar-footer {
   padding: 1rem 1.25rem; border-top: 1px solid rgba(255,255,255,.06);
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
 }
 #sidebar .user-card {
   display: flex; align-items: center; gap: .6rem; padding: .5rem .75rem;
