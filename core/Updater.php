@@ -8,8 +8,24 @@ class Updater {
         return CMS_VERSION;
     }
 
+    // Cache-levensduur in seconden (10 minuten)
+    private static int $cacheTtl = 600;
+
     public static function checkForUpdates(): array {
         $current = self::currentVersion();
+
+        // Serveer gecachte data als die nog vers genoeg is
+        if (INSTALLED && class_exists('Settings')) {
+            $cacheTime = (int) Settings::get('updater_cache_time', '0');
+            $cacheData = Settings::get('updater_cache_data', '');
+            if ($cacheData && (time() - $cacheTime) < self::$cacheTtl) {
+                $cached = json_decode($cacheData, true);
+                if (is_array($cached)) {
+                    return $cached;
+                }
+            }
+        }
+
         $ctx = stream_context_create([
             'http' => [
                 'timeout'    => 8,
@@ -51,7 +67,7 @@ class Updater {
                     ? substr($release['published_at'], 0, 10)
                     : null;
 
-                return [
+                $result = [
                     'current'          => $current,
                     'latest'           => $version,
                     'changelog'        => $changelog,
@@ -59,10 +75,12 @@ class Updater {
                     'update_available' => version_compare($version, $current, '>'),
                     'release_date'     => $releaseDate,
                 ];
+                self::storeCache($result);
+                return $result;
             }
         }
 
-        return [
+        $result = [
             'current'          => $current,
             'latest'           => $current,
             'changelog'        => [],
@@ -70,6 +88,15 @@ class Updater {
             'update_available' => false,
             'release_date'     => null,
         ];
+        self::storeCache($result);
+        return $result;
+    }
+
+    private static function storeCache(array $result): void {
+        if (INSTALLED && class_exists('Settings')) {
+            Settings::set('updater_cache_time', (string) time());
+            Settings::set('updater_cache_data', json_encode($result));
+        }
     }
 
     // ── Voer de update uit ────────────────────────────────────────────────
@@ -140,6 +167,12 @@ class Updater {
         if ($newVersion && INSTALLED && class_exists('Settings')) {
             Settings::set('cms_version', $newVersion);
             $steps[] = self::step('Versie bijgewerkt naar ' . $newVersion, true);
+        }
+
+        // Wis update-cache zodat de nieuwe versie direct zichtbaar is
+        if (INSTALLED && class_exists('Settings')) {
+            Settings::set('updater_cache_time', '0');
+            Settings::set('updater_cache_data', '');
         }
 
         // 6. Database migraties uitvoeren indien aanwezig
