@@ -3,6 +3,9 @@ class Updater {
     // GitHub Releases API – geeft altijd de laatste release terug
     private static $releasesApiUrl = 'https://api.github.com/repos/rorymeijer/RoictCMS/releases/latest';
 
+    // Fallback: version.json op de main branch
+    private static $versionUrl = 'https://raw.githubusercontent.com/rorymeijer/RoictCMS/main/version.json';
+
     // Huidige versie komt altijd uit CMS_VERSION in config.php
     public static function currentVersion(): string {
         return CMS_VERSION;
@@ -17,6 +20,7 @@ class Updater {
             ],
         ]);
 
+        // Probeer eerst de GitHub Releases API
         $data = @file_get_contents(self::$releasesApiUrl, false, $ctx);
         if ($data) {
             $release = json_decode($data, true);
@@ -62,6 +66,22 @@ class Updater {
             }
         }
 
+        // Fallback: version.json op de main branch
+        $data = @file_get_contents(self::$versionUrl, false, $ctx);
+        if ($data) {
+            $remote = json_decode($data, true);
+            if ($remote && isset($remote['version'])) {
+                return [
+                    'current'          => $current,
+                    'latest'           => $remote['version'],
+                    'changelog'        => $remote['changelog'] ?? [],
+                    'download_url'     => $remote['download_url'] ?? null,
+                    'update_available' => version_compare($remote['version'], $current, '>'),
+                    'release_date'     => $remote['release_date'] ?? null,
+                ];
+            }
+        }
+
         return [
             'current'          => $current,
             'latest'           => $current,
@@ -70,6 +90,24 @@ class Updater {
             'update_available' => false,
             'release_date'     => null,
         ];
+    }
+
+    /**
+     * Gecachede update-check — maximaal één API-aanroep per uur per sessie.
+     * Gebruik dit in de header om te voorkomen dat elke pagina de API aanroept.
+     */
+    public static function getCachedUpdateInfo(): array {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            $cache = $_SESSION['_update_cache'] ?? null;
+            if ($cache && isset($cache['ts']) && (time() - $cache['ts']) < 3600) {
+                return $cache['data'];
+            }
+        }
+        $info = self::checkForUpdates();
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            $_SESSION['_update_cache'] = ['ts' => time(), 'data' => $info];
+        }
+        return $info;
     }
 
     // ── Voer de update uit ────────────────────────────────────────────────

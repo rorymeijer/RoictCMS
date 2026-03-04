@@ -261,8 +261,14 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     <a href="<?= BASE_URL ?>/admin/settings/" class="nav-link <?= ($activePage ?? '') === 'settings' ? 'active' : '' ?>">
       <i class="bi bi-gear"></i> Instellingen
     </a>
+    <?php
+    $__updateInfo = Updater::getCachedUpdateInfo();
+    ?>
     <a href="<?= BASE_URL ?>/admin/updates/" class="nav-link <?= ($activePage ?? '') === 'updates' ? 'active' : '' ?>">
       <i class="bi bi-arrow-up-circle"></i> Updates
+      <?php if ($__updateInfo['update_available']): ?>
+      <span class="nav-badge">1</span>
+      <?php endif; ?>
     </a>
   </nav>
   <div class="sidebar-footer">
