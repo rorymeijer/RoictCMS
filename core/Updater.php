@@ -1,6 +1,9 @@
 <?php
 class Updater {
-    // version.json op GitHub bevat versie + changelog + download_url naar de CMS ZIP
+    // GitHub Releases API – geeft altijd de laatste release terug
+    private static $releasesApiUrl = 'https://api.github.com/repos/rorymeijer/RoictCMS/releases/latest';
+
+    // Fallback: version.json op de main branch
     private static $versionUrl = 'https://raw.githubusercontent.com/rorymeijer/RoictCMS/main/version.json';
 
     // ── Versie check ──────────────────────────────────────────────────────
@@ -23,6 +26,53 @@ class Updater {
             ],
         ]);
 
+        // Probeer eerst de GitHub Releases API
+        $data = @file_get_contents(self::$releasesApiUrl, false, $ctx);
+        if ($data) {
+            $release = json_decode($data, true);
+            if ($release && isset($release['tag_name'])) {
+                // tag_name kan "v1.0.36" of "1.0.36" zijn — strip de "v" prefix
+                $version = ltrim($release['tag_name'], 'v');
+
+                // Kies download URL: eerst een geüpload asset (.zip), anders zipball
+                $downloadUrl = $release['zipball_url'] ?? null;
+                if (!empty($release['assets'])) {
+                    foreach ($release['assets'] as $asset) {
+                        if (isset($asset['browser_download_url']) && str_ends_with($asset['name'], '.zip')) {
+                            $downloadUrl = $asset['browser_download_url'];
+                            break;
+                        }
+                    }
+                }
+
+                // Release body (markdown) splitsen in regels voor de changelog
+                $changelog = [];
+                if (!empty($release['body'])) {
+                    foreach (explode("\n", $release['body']) as $line) {
+                        $line = trim($line, "\r\n- *# ");
+                        if ($line !== '') {
+                            $changelog[] = $line;
+                        }
+                    }
+                }
+
+                // Datum: "2026-03-03T00:00:00Z" → "2026-03-03"
+                $releaseDate = isset($release['published_at'])
+                    ? substr($release['published_at'], 0, 10)
+                    : null;
+
+                return [
+                    'current'          => $current,
+                    'latest'           => $version,
+                    'changelog'        => $changelog,
+                    'download_url'     => $downloadUrl,
+                    'update_available' => version_compare($version, $current, '>'),
+                    'release_date'     => $releaseDate,
+                ];
+            }
+        }
+
+        // Fallback: version.json op de main branch
         $data = @file_get_contents(self::$versionUrl, false, $ctx);
         if ($data) {
             $remote = json_decode($data, true);
