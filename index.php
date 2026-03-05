@@ -9,9 +9,10 @@ if (!INSTALLED) {
 }
 
 // Maintenance mode
-if (Settings::get('maintenance_mode') && !Auth::isAdmin()) {
+if (Settings::get('maintenance_mode') == '1' && !Auth::isAdmin()) {
+    $maintenanceMessage = Settings::get('maintenance_message', 'We zijn even bezig. Kom later terug!');
     http_response_code(503);
-    echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Onderhoud</title><style>body{display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:sans-serif;background:#0f172a;color:white;}div{text-align:center;}.icon{font-size:4rem;margin-bottom:1rem;}h1{font-size:2rem;}p{color:#94a3b8;}</style></head><body><div><div class="icon">🔧</div><h1>Onderhoud</h1><p>We zijn even bezig. Kom later terug!</p></div></body></html>';
+    echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Onderhoud</title><style>body{display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:sans-serif;background:#0f172a;color:white;}div{text-align:center;}.icon{font-size:4rem;margin-bottom:1rem;}h1{font-size:2rem;}p{color:#94a3b8;white-space:pre-line;}</style></head><body><div><div class="icon">🔧</div><h1>Onderhoud</h1><p>' . htmlspecialchars($maintenanceMessage, ENT_QUOTES, 'UTF-8') . '</p></div></body></html>';
     exit;
 }
 

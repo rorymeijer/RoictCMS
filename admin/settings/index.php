@@ -5,11 +5,15 @@ $pageTitle = 'Instellingen';
 $activePage = 'settings';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
-    $allowed = ['site_name','site_tagline','site_email','posts_per_page','date_format','timezone','language','maintenance_mode','footer_text','homepage_type','homepage_page_id'];
+    $allowed = ['site_name','site_tagline','site_email','posts_per_page','date_format','timezone','language','maintenance_mode','maintenance_message','footer_text','homepage_type','homepage_page_id'];
     $data = array_intersect_key($_POST, array_flip($allowed));
     // Ensure homepage_page_id is stored as int
     if (isset($data['homepage_page_id'])) {
         $data['homepage_page_id'] = (int)$data['homepage_page_id'];
+    }
+    // Checkbox: als niet aangevinkt stuurt de browser geen waarde mee, expliciet op '0' zetten
+    if (!isset($data['maintenance_mode'])) {
+        $data['maintenance_mode'] = '0';
     }
     Settings::setMultiple($data);
     flash('success', 'Instellingen opgeslagen.');
@@ -115,11 +119,15 @@ require_once __DIR__ . '/../includes/header.php';
       <div class="cms-card mb-3">
         <div class="cms-card-header"><span class="cms-card-title">Site Status</span></div>
         <div class="cms-card-body">
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" name="maintenance_mode" value="1" id="maint" <?= Settings::get('maintenance_mode', '') ? 'checked' : '' ?>>
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" name="maintenance_mode" value="1" id="maint" <?= Settings::get('maintenance_mode', '') == '1' ? 'checked' : '' ?>>
             <label class="form-check-label fw-semibold" for="maint">Onderhoudsmodus</label>
           </div>
-          <small class="text-muted">Bezoekers zien een onderhoudspagina.</small>
+          <div class="mb-2">
+            <label class="form-label fw-semibold" for="maintenance_message">Onderhoudsbericht</label>
+            <textarea class="form-control" name="maintenance_message" id="maintenance_message" rows="4" placeholder="Bijv. We zijn even bezig. Kom later terug!"><?= e(Settings::get('maintenance_message', '')) ?></textarea>
+            <small class="text-muted">Dit bericht wordt getoond aan bezoekers tijdens de onderhoudsmodus.</small>
+          </div>
         </div>
       </div>
       <div class="cms-card mb-3">
