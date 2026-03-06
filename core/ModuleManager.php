@@ -204,13 +204,17 @@ class ModuleManager {
             $modules[] = $entry;
         }
 
-        // Verberg alpha/beta modules tenzij de instelling is ingeschakeld
-        if (Settings::get('marketplace_show_alpha_beta', '0') !== '1') {
-            $modules = array_values(array_filter(
-                $modules,
-                fn($m) => !in_array($m['status'] ?? '', ['alpha', 'beta'], true)
-            ));
-        }
+        // Filter op zichtbare statussen op basis van instellingen
+        $showReleased = Settings::get('marketplace_show_released', '1') !== '0';
+        $showBeta     = Settings::get('marketplace_show_beta',     '0') === '1';
+        $showAlpha    = Settings::get('marketplace_show_alpha',    '0') === '1';
+
+        $modules = array_values(array_filter($modules, function($m) use ($showReleased, $showBeta, $showAlpha) {
+            $status = $m['status'] ?? '';
+            if ($status === 'alpha') return $showAlpha;
+            if ($status === 'beta')  return $showBeta;
+            return $showReleased; // stabiel/released
+        }));
 
         usort($modules, fn($a, $b) => strcmp($a['name'] ?? '', $b['name'] ?? ''));
 
