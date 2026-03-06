@@ -3,6 +3,7 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/Database.php';
 require_once __DIR__ . '/Auth.php';
 require_once __DIR__ . '/Settings.php';
+require_once __DIR__ . '/AdminI18n.php';
 require_once __DIR__ . '/ModuleManager.php';
 require_once __DIR__ . '/ThemeManager.php';
 require_once __DIR__ . '/Updater.php';
