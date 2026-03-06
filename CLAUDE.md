@@ -138,7 +138,9 @@ modules/{slug}/
 {
   "name": "Naam van de module",
   "version": "1.0.0",
+  "status": "alpha",
   "author": "Auteursnaam",
+  "author_url": "https://voorbeeld.nl",
   "description": "Korte beschrijving van wat de module doet.",
   "category": "Categorie",
   "icon": "bootstrap-icon-naam"
@@ -147,6 +149,8 @@ modules/{slug}/
 
 - `icon`: gebruik een naam uit [Bootstrap Icons](https://icons.getbootstrap.com/), bijv. `"envelope"`, `"image"`, `"graph-up"`.
 - `category`: vrije tekst, bijv. `"Communication"`, `"SEO"`, `"E-Commerce"`.
+- `status`: optioneel. Gebruik `"alpha"` voor vroege releases (versie 0.0.x), `"beta"` voor testversies (versie 0.x.x). Weglaten voor stabiele releases (versie 1.x.x+).
+- `author_url`: optioneel. Website van de auteur of organisatie.
 
 ---
 
@@ -364,6 +368,7 @@ INSTALLED      // true/false
   "name": "Voorbeeld Module",
   "version": "1.0.0",
   "author": "ROICT",
+  "author_url": "https://roict.nl",
   "description": "Een eenvoudige voorbeeldmodule die laat zien hoe modules werken.",
   "category": "Voorbeeld",
   "icon": "star"
@@ -489,15 +494,18 @@ Om een module beschikbaar te maken in de marketplace, voeg je deze toe aan `api/
       "name": "Mijn Module",
       "description": "Beschrijving van wat de module doet.",
       "version": "1.0.0",
+      "status": "alpha",
       "author": "Auteursnaam",
+      "author_url": "https://voorbeeld.nl",
       "category": "Categorie",
       "icon": "icon-naam",
       "tags": ["tag1", "tag2"],
-      "downloads": 0,
-      "rating": 5.0,
       "price": "free",
       "download_url": "https://url-naar-zip-bestand.zip"
     }
   ]
 }
 ```
+
+- `status`: optioneel. `"alpha"` voor versie 0.0.x, `"beta"` voor versie 0.x.x, weglaten voor stabiel (1.x.x+).
+- `author_url`: optioneel. Website van de auteur.
