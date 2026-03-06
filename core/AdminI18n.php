@@ -55,10 +55,12 @@ function apply_site_locale(): void {
 function admin_i18n_base_dictionary(): array {
     return [
         'en' => [
+            // Navigation
             'Dashboard' => 'Dashboard',
             'Inhoud' => 'Content',
             "Pagina's" => 'Pages',
             'Nieuws' => 'News',
+            'Media' => 'Media',
             'Beheer' => 'Management',
             'Gebruikers' => 'Users',
             "Thema's" => 'Themes',
@@ -67,6 +69,18 @@ function admin_i18n_base_dictionary(): array {
             'Updates' => 'Updates',
             'Bekijk website' => 'View website',
             'Uitloggen' => 'Logout',
+            // Module sidebar items
+            'Reacties' => 'Comments',
+            'Statistieken' => 'Statistics',
+            'Contact Formulier' => 'Contact Form',
+            'Twee-Factor Auth' => 'Two-Factor Auth',
+            'Rollen &amp; Rechten' => 'Roles &amp; Permissions',
+            'Galerijen' => 'Galleries',
+            'Klantenpaneel' => 'Customer Portal',
+            'Klanten' => 'Customers',
+            'Offertes' => 'Quotes',
+            'Facturen' => 'Invoices',
+            // Dashboard
             'Recente berichten' => 'Recent posts',
             'Alles bekijken' => 'View all',
             'Titel' => 'Title',
@@ -81,7 +95,71 @@ function admin_i18n_base_dictionary(): array {
             'Media Upload' => 'Media upload',
             'Nieuwsberichten' => 'News posts',
             'Actieve Modules' => 'Active modules',
+            // Profile page
+            'Mijn Profiel' => 'My Profile',
+            'Profielgegevens' => 'Profile information',
+            'Gebruikersnaam *' => 'Username *',
+            'Gebruikersnaam' => 'Username',
+            'E-mailadres *' => 'Email address *',
+            'E-mailadres' => 'Email address',
+            'Wachtwoord wijzigen' => 'Change password',
+            'Nieuw wachtwoord' => 'New password',
+            'laat leeg om niet te wijzigen' => 'leave empty to not change',
+            'Wachtwoord bevestigen' => 'Confirm password',
+            'Wijzigingen opslaan' => 'Save changes',
+            'Accountinformatie' => 'Account information',
+            'Rol' => 'Role',
+            'Laatste login' => 'Last login',
+            'Lid sinds' => 'Member since',
+            // Common actions & labels
             'Weet u het zeker?' => 'Are you sure?',
+            'Toevoegen' => 'Add',
+            'Bewerken' => 'Edit',
+            'Verwijderen' => 'Delete',
+            'Opslaan' => 'Save',
+            'Annuleren' => 'Cancel',
+            'Zoeken' => 'Search',
+            'Filteren' => 'Filter',
+            'Actief' => 'Active',
+            'Inactief' => 'Inactive',
+            'Gepubliceerd' => 'Published',
+            'Concept' => 'Draft',
+            'Ja' => 'Yes',
+            'Nee' => 'No',
+            'Sluiten' => 'Close',
+            'Opgeslagen' => 'Saved',
+            'Verwijderd' => 'Deleted',
+            'Admin' => 'Admin',
+            'Beheerder' => 'Administrator',
+            'Lid' => 'Member',
+            // Pages & News
+            'Pagina toevoegen' => 'Add page',
+            'Pagina bewerken' => 'Edit page',
+            'Nieuwsbericht toevoegen' => 'Add news post',
+            'Nieuwsbericht bewerken' => 'Edit news post',
+            'Slug' => 'Slug',
+            'Inhoud' => 'Content',
+            'Samenvatting' => 'Summary',
+            'Uitgelichte afbeelding' => 'Featured image',
+            'Publiceren' => 'Publish',
+            'Opslaan als concept' => 'Save as draft',
+            'Gepubliceerd op' => 'Published on',
+            'Aangemaakt op' => 'Created on',
+            'Bijgewerkt op' => 'Updated on',
+            // Users
+            'Gebruiker toevoegen' => 'Add user',
+            'Gebruiker bewerken' => 'Edit user',
+            'Wachtwoord' => 'Password',
+            'Bevestig wachtwoord' => 'Confirm password',
+            'Rollen' => 'Roles',
+            // Media
+            'Afbeelding uploaden' => 'Upload image',
+            'Bestand selecteren' => 'Select file',
+            'Uploaden' => 'Upload',
+            'Bestandsnaam' => 'Filename',
+            'Bestandsgrootte' => 'File size',
+            'Alt-tekst' => 'Alt text',
+            // Settings
             'Algemene Instellingen' => 'General settings',
             'Sitenaam *' => 'Site name *',
             'Tagline' => 'Tagline',
@@ -116,8 +194,20 @@ function admin_i18n_base_dictionary(): array {
             'Thema' => 'Theme',
             'Instellingen opslaan' => 'Save settings',
             'Instellingen opgeslagen.' => 'Settings saved.',
-            'pagina\'s totaal' => 'total pages',
+            "pagina's totaal" => 'total pages',
             'berichten totaal' => 'total posts',
+            // Flash / error messages
+            'Onjuiste gebruikersnaam of wachtwoord.' => 'Incorrect username or password.',
+            'Gebruikersnaam is verplicht.' => 'Username is required.',
+            'Ongeldige aanvraag.' => 'Invalid request.',
+            'Niet gevonden.' => 'Not found.',
+            'Toegang geweigerd.' => 'Access denied.',
+            'Er is een fout opgetreden.' => 'An error occurred.',
+            'Wijzigingen opgeslagen.' => 'Changes saved.',
+            'Gebruiker opgeslagen.' => 'User saved.',
+            'Pagina opgeslagen.' => 'Page saved.',
+            'Bericht opgeslagen.' => 'Post saved.',
+            'Succesvol verwijderd.' => 'Successfully deleted.',
         ],
         'fr' => [
             'Dashboard' => 'Tableau de bord',
@@ -257,6 +347,10 @@ function admin_i18n_dictionary(string $lang): array {
 
 function admin_translate_html(string $html): string {
     $lang = admin_lang();
+
+    // Always sync the <html lang="..."> attribute with the actual admin language.
+    $html = preg_replace('/<html([^>]*)\blang="[^"]*"/', '<html$1 lang="' . $lang . '"', $html, 1);
+
     if ($lang === 'nl') {
         return $html;
     }

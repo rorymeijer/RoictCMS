@@ -10,7 +10,7 @@ if (!INSTALLED) {
 
 Auth::requireLogin();
 
-if (!headers_sent() && ob_get_level() === 0) {
+if (!headers_sent()) {
     ob_start('admin_translate_html');
 }
 
