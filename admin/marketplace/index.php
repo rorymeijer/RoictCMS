@@ -104,17 +104,18 @@ require_once __DIR__ . '/../includes/header.php';
           <div class="d-flex align-items-center gap-2 flex-wrap">
             <span class="fw-bold"><?= e($item['name']) ?></span>
             <span class="badge bg-secondary" style="font-size:.65rem;"><?= e($item['category']) ?></span>
-          </div>
-          <div class="market-rating">
-            <?= str_repeat('★', round($item['rating'])) ?><?= str_repeat('☆', 5 - round($item['rating'])) ?>
-            <span style="color:var(--text-muted);font-size:.75rem;"><?= $item['rating'] ?> (<?= number_format($item['downloads']) ?>)</span>
+            <?php if (($item['status'] ?? '') === 'alpha'): ?>
+            <span class="badge" style="font-size:.65rem;background:#dc2626;color:white;">Alpha</span>
+            <?php elseif (($item['status'] ?? '') === 'beta'): ?>
+            <span class="badge" style="font-size:.65rem;background:#d97706;color:white;">Beta</span>
+            <?php endif; ?>
           </div>
         </div>
         <div class="market-price <?= $item['price'] === 'free' ? 'free' : 'paid' ?>">
           <?= $item['price'] === 'free' ? 'Gratis' : e($item['price']) ?>
         </div>
       </div>
-      
+
       <p style="font-size:.82rem;color:var(--text-muted);margin:.5rem 0 0;"><?= e($item['description']) ?></p>
       
       <?php
@@ -128,7 +129,7 @@ require_once __DIR__ . '/../includes/header.php';
       ?>
       <div class="d-flex align-items-center justify-content-between mt-auto pt-3" style="border-top:1px solid var(--border);">
         <div>
-          <span style="font-size:.75rem;color:var(--text-muted);">v<?= e($item['version']) ?> door <?= e($item['author']) ?></span>
+          <span style="font-size:.75rem;color:var(--text-muted);">v<?= e($item['version']) ?> door <?php if (!empty($item['author_url'])): ?><a href="<?= e($item['author_url']) ?>" target="_blank" rel="noopener" style="color:inherit;"><?= e($item['author']) ?></a><?php else: ?><?= e($item['author']) ?><?php endif; ?></span>
           <?php if ($hasUpdate): ?>
           <span data-update-badge style="display:inline-block;margin-left:.4rem;background:#f59e0b;color:white;border-radius:6px;padding:.1rem .45rem;font-size:.65rem;font-weight:700;">
             ↑ v<?= e($installedVer) ?> → v<?= e($remoteVer) ?>
