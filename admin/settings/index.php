@@ -5,6 +5,16 @@ $pageTitle = 'Instellingen';
 $activePage = 'settings';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
+    if (isset($_POST['refresh_marketplace_cache'])) {
+        $refreshed = ModuleManager::refreshMarketplaceCache();
+        if ($refreshed) {
+            flash('success', 'Marketplace cache geflusht en opnieuw opgehaald.');
+        } else {
+            flash('error', 'Marketplace cache kon niet worden verwijderd. Controleer bestandsrechten.');
+        }
+        redirect(BASE_URL . '/admin/settings/');
+    }
+
     $allowed = ['site_name','site_tagline','site_email','posts_per_page','date_format','timezone','language','maintenance_mode','maintenance_message','footer_text','homepage_type','homepage_page_id','marketplace_show_released','marketplace_show_beta','marketplace_show_alpha'];
     $data = array_intersect_key($_POST, array_flip($allowed));
     // Ensure homepage_page_id is stored as int
@@ -131,6 +141,12 @@ require_once __DIR__ . '/../includes/header.php';
           <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" name="marketplace_show_alpha" value="1" id="mkt_alpha" <?= Settings::get('marketplace_show_alpha', '0') == '1' ? 'checked' : '' ?>>
             <label class="form-check-label" for="mkt_alpha">Alpha <span class="badge bg-danger ms-1">Alpha</span></label>
+          </div>
+          <div class="mt-3">
+            <button type="submit" name="refresh_marketplace_cache" value="1" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-arrow-clockwise me-1"></i> Cache flushen & ZIP opnieuw ophalen
+            </button>
+            <div class="text-muted" style="font-size:.78rem;">Forceert direct een nieuwe controle van ZIP-bestanden in de module marketplace.</div>
           </div>
         </div>
       </div>
