@@ -64,21 +64,23 @@ require_once __DIR__ . '/includes/header.php';
         <span class="cms-card-title"><i class="bi bi-newspaper me-2"></i>Recente berichten</span>
         <a href="<?= BASE_URL ?>/admin/news/" class="btn btn-sm btn-outline-secondary">Alles bekijken</a>
       </div>
+      <div class="table-responsive-wrap">
       <table class="cms-table">
-        <thead><tr><th>Titel</th><th>Auteur</th><th>Status</th><th>Datum</th></tr></thead>
+        <thead><tr><th>Titel</th><th class="col-hide-mobile">Auteur</th><th>Status</th><th class="col-hide-mobile">Datum</th></tr></thead>
         <tbody>
           <?php if (!$recentNews): ?>
           <tr><td colspan="4" class="text-center text-muted py-4">Nog geen berichten</td></tr>
           <?php else: foreach ($recentNews as $n): ?>
           <tr>
             <td><a href="<?= BASE_URL ?>/admin/news/edit.php?id=<?= $n['id'] ?>" class="text-decoration-none fw-semibold"><?= e($n['title']) ?></a></td>
-            <td class="text-muted"><?= e($n['username'] ?? '—') ?></td>
+            <td class="text-muted col-hide-mobile"><?= e($n['username'] ?? '—') ?></td>
             <td><span class="badge-status badge-<?= $n['status'] ?>"><?= ucfirst($n['status']) ?></span></td>
-            <td class="text-muted"><?= date('d M Y', strtotime($n['created_at'])) ?></td>
+            <td class="text-muted col-hide-mobile"><?= date('d M Y', strtotime($n['created_at'])) ?></td>
           </tr>
           <?php endforeach; endif; ?>
         </tbody>
       </table>
+      </div>
     </div>
   </div>
   <!-- Recent users -->

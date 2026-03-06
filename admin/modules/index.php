@@ -36,17 +36,18 @@ require_once __DIR__ . '/../includes/header.php';
 </div>
 <?php else: ?>
 <div class="cms-card">
+  <div class="table-responsive-wrap">
   <table class="cms-table">
-    <thead><tr><th>Module</th><th>Versie</th><th>Status</th><th>Geïnstalleerd</th><th>Acties</th></tr></thead>
+    <thead><tr><th>Module</th><th class="col-hide-mobile">Versie</th><th>Status</th><th class="col-hide-mobile">Geïnstalleerd</th><th>Acties</th></tr></thead>
     <tbody>
     <?php foreach ($modules as $m): ?>
     <tr>
       <td class="fw-semibold"><?= e($m['name']) ?></td>
-      <td><code style="font-size:.78rem;">v<?= e($m['version']) ?></code></td>
+      <td class="col-hide-mobile"><code style="font-size:.78rem;">v<?= e($m['version']) ?></code></td>
       <td id="status-<?= e($m['slug']) ?>">
         <span class="badge-status badge-<?= $m['status'] ?>"><?= $m['status'] === 'active' ? 'Actief' : 'Inactief' ?></span>
       </td>
-      <td class="text-muted"><?= date('d M Y', strtotime($m['installed_at'])) ?></td>
+      <td class="text-muted col-hide-mobile"><?= date('d M Y', strtotime($m['installed_at'])) ?></td>
       <td>
         <div class="action-btns">
           <?php if ($m['status'] === 'active' && file_exists(MODULES_PATH . '/' . $m['slug'] . '/admin/index.php')): ?>
@@ -66,6 +67,7 @@ require_once __DIR__ . '/../includes/header.php';
     <?php endforeach; ?>
     </tbody>
   </table>
+  </div>
 </div>
 <?php endif; ?>
 

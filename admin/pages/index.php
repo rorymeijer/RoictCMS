@@ -44,11 +44,12 @@ require_once __DIR__ . '/../includes/header.php';
       </select>
     </div>
   </div>
+  <div class="table-responsive-wrap">
   <table class="cms-table">
     <thead>
       <tr>
-        <th style="width:40px;"><input type="checkbox" class="form-check-input"></th>
-        <th>Titel</th><th>Slug</th><th>Auteur</th><th>Status</th><th>Bijgewerkt</th><th style="width:100px;">Acties</th>
+        <th style="width:40px;" class="col-hide-mobile"><input type="checkbox" class="form-check-input"></th>
+        <th>Titel</th><th class="col-hide-mobile">Slug</th><th class="col-hide-mobile">Auteur</th><th>Status</th><th class="col-hide-mobile">Bijgewerkt</th><th style="width:100px;">Acties</th>
       </tr>
     </thead>
     <tbody>
@@ -59,14 +60,15 @@ require_once __DIR__ . '/../includes/header.php';
       </td></tr>
       <?php else: foreach ($pages as $p): ?>
       <tr>
-        <td><input type="checkbox" class="form-check-input"></td>
+        <td class="col-hide-mobile"><input type="checkbox" class="form-check-input"></td>
         <td>
           <a href="edit.php?id=<?= $p['id'] ?>" class="text-decoration-none fw-semibold"><?= e($p['title']) ?></a>
+          <div class="d-sm-none text-muted" style="font-size:.75rem;margin-top:.2rem;"><?= $p['status'] === 'published' ? '' : '<span class="badge-status badge-draft">Concept</span>' ?></div>
         </td>
-        <td><code style="font-size:.78rem;color:#64748b;">/<?= e($p['slug']) ?></code></td>
-        <td class="text-muted"><?= e($p['username'] ?? '—') ?></td>
+        <td class="col-hide-mobile"><code style="font-size:.78rem;color:#64748b;">/<?= e($p['slug']) ?></code></td>
+        <td class="text-muted col-hide-mobile"><?= e($p['username'] ?? '—') ?></td>
         <td><span class="badge-status badge-<?= $p['status'] ?>"><?= $p['status'] === 'published' ? 'Gepubliceerd' : 'Concept' ?></span></td>
-        <td class="text-muted"><?= date('d M Y', strtotime($p['updated_at'])) ?></td>
+        <td class="text-muted col-hide-mobile"><?= date('d M Y', strtotime($p['updated_at'])) ?></td>
         <td>
           <div class="action-btns">
             <a href="edit.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline-secondary btn-icon" title="Bewerken"><i class="bi bi-pencil"></i></a>
@@ -78,6 +80,7 @@ require_once __DIR__ . '/../includes/header.php';
       <?php endforeach; endif; ?>
     </tbody>
   </table>
+  </div>
   <?php if ($pagination['total_pages'] > 1): ?>
   <div class="d-flex justify-content-between align-items-center px-4 py-3 border-top">
     <span class="text-muted" style="font-size:.82rem;"><?= $pagination['offset'] + 1 ?>–<?= min($pagination['offset'] + $perPage, $total) ?> van <?= $total ?></span>

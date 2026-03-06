@@ -23,8 +23,9 @@ require_once __DIR__ . '/../includes/header.php';
 </div>
 
 <div class="cms-card">
+  <div class="table-responsive-wrap">
   <table class="cms-table">
-    <thead><tr><th>Gebruiker</th><th>Email</th><th>Rol</th><th>Laatste login</th><th>Status</th><th>Acties</th></tr></thead>
+    <thead><tr><th>Gebruiker</th><th class="col-hide-mobile">Email</th><th>Rol</th><th class="col-hide-mobile">Laatste login</th><th>Status</th><th>Acties</th></tr></thead>
     <tbody>
     <?php foreach ($users as $u): ?>
     <tr>
@@ -37,12 +38,12 @@ require_once __DIR__ . '/../includes/header.php';
           </div>
         </div>
       </td>
-      <td class="text-muted"><?= e($u['email']) ?></td>
+      <td class="text-muted col-hide-mobile"><?= e($u['email']) ?></td>
       <td>
         <?php $roles = ['admin' => ['primary','Admin'], 'editor' => ['success','Redacteur'], 'author' => ['secondary','Auteur']]; $r = $roles[$u['role']] ?? ['secondary',$u['role']]; ?>
         <span class="badge bg-<?= $r[0] ?>"><?= $r[1] ?></span>
       </td>
-      <td class="text-muted"><?= $u['last_login'] ? date('d M Y H:i', strtotime($u['last_login'])) : 'Nooit' ?></td>
+      <td class="text-muted col-hide-mobile"><?= $u['last_login'] ? date('d M Y H:i', strtotime($u['last_login'])) : 'Nooit' ?></td>
       <td><span class="badge-status badge-<?= $u['status'] ?>"><?= $u['status'] === 'active' ? 'Actief' : 'Inactief' ?></span></td>
       <td>
         <div class="action-btns">
@@ -56,5 +57,6 @@ require_once __DIR__ . '/../includes/header.php';
     <?php endforeach; ?>
     </tbody>
   </table>
+  </div>
 </div>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

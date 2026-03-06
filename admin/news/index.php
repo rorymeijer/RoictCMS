@@ -26,7 +26,7 @@ require_once __DIR__ . '/../includes/header.php';
     <h1 style="font-size:1.4rem;font-weight:800;margin:0;">Nieuwsberichten</h1>
     <p class="text-muted mb-0" style="font-size:.85rem;"><?= $total ?> berichten totaal</p>
   </div>
-  <div class="d-flex gap-2">
+  <div class="d-flex gap-2 flex-wrap">
     <a href="settings.php" class="btn btn-outline-secondary btn-sm"><i class="bi bi-gear"></i> Instellingen</a>
     <a href="add.php" class="quick-add-btn"><i class="bi bi-plus-lg"></i> Nieuw Bericht</a>
   </div>
@@ -39,11 +39,12 @@ require_once __DIR__ . '/../includes/header.php';
       <button class="btn btn-sm btn-outline-secondary">Zoek</button>
     </form>
   </div>
+  <div class="table-responsive-wrap">
   <table class="cms-table">
     <thead>
       <tr>
-        <th style="width:40px;"><input type="checkbox" class="form-check-input"></th>
-        <th>Titel</th><th>Categorie</th><th>Auteur</th><th>Status</th><th>Datum</th><th style="width:100px;">Acties</th>
+        <th style="width:40px;" class="col-hide-mobile"><input type="checkbox" class="form-check-input"></th>
+        <th>Titel</th><th class="col-hide-mobile">Categorie</th><th class="col-hide-mobile">Auteur</th><th>Status</th><th class="col-hide-mobile">Datum</th><th style="width:100px;">Acties</th>
       </tr>
     </thead>
     <tbody>
@@ -54,15 +55,15 @@ require_once __DIR__ . '/../includes/header.php';
       </td></tr>
       <?php else: foreach ($posts as $p): ?>
       <tr>
-        <td><input type="checkbox" class="form-check-input"></td>
+        <td class="col-hide-mobile"><input type="checkbox" class="form-check-input"></td>
         <td>
           <a href="edit.php?id=<?= $p['id'] ?>" class="text-decoration-none fw-semibold"><?= e($p['title']) ?></a>
           <?php if ($p['excerpt']): ?><br><small class="text-muted"><?= e(substr($p['excerpt'], 0, 80)) ?>...</small><?php endif; ?>
         </td>
-        <td class="text-muted"><?= e($p['category_name'] ?? '—') ?></td>
-        <td class="text-muted"><?= e($p['username'] ?? '—') ?></td>
+        <td class="text-muted col-hide-mobile"><?= e($p['category_name'] ?? '—') ?></td>
+        <td class="text-muted col-hide-mobile"><?= e($p['username'] ?? '—') ?></td>
         <td><span class="badge-status badge-<?= $p['status'] ?>"><?= $p['status'] === 'published' ? 'Gepubliceerd' : 'Concept' ?></span></td>
-        <td class="text-muted"><?= date('d M Y', strtotime($p['created_at'])) ?></td>
+        <td class="text-muted col-hide-mobile"><?= date('d M Y', strtotime($p['created_at'])) ?></td>
         <td>
           <div class="action-btns">
             <a href="edit.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline-secondary btn-icon"><i class="bi bi-pencil"></i></a>
@@ -74,6 +75,7 @@ require_once __DIR__ . '/../includes/header.php';
       <?php endforeach; endif; ?>
     </tbody>
   </table>
+  </div>
 </div>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

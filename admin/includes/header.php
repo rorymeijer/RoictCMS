@@ -96,7 +96,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   height: var(--topbar-h); background: var(--card-bg); border-bottom: 1px solid var(--border);
   display: flex; align-items: center; padding: 0 1.75rem; gap: 1rem; position: sticky; top: 0; z-index: 400;
 }
-#topbar .page-title { font-size: 1rem; font-weight: 700; color: var(--text); }
+#topbar .page-title { font-size: 1rem; font-weight: 700; color: var(--text); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #topbar .topbar-actions { margin-left: auto; display: flex; align-items: center; gap: .5rem; }
 .topbar-icon-btn {
   width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--border);
@@ -117,7 +117,13 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 /* Cards */
 .cms-card {
   background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px;
-  overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+}
+
+/* Responsive table wrapper — placed inside .cms-card to enable horizontal scroll */
+.table-responsive-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .cms-card-header {
   padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border);
@@ -187,11 +193,28 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 #sidebar-overlay.show { display: block; }
 
+/* Tablet (768px en lager) — verberg/toon sidebar via toggle */
 @media (max-width: 768px) {
   .sidebar-toggle-btn { display: flex !important; }
   #sidebar { transform: translateX(-260px); }
   #sidebar.open { transform: translateX(0) !important; box-shadow: 4px 0 30px rgba(0,0,0,.5); }
   #main-wrap { margin-left: 0 !important; }
+  #content { padding: 1.25rem; }
+  #topbar { padding: 0 1rem; gap: .5rem; }
+  .cms-card-header { flex-wrap: wrap; gap: .6rem; }
+  .cms-card-header form { max-width: 100% !important; flex: 1 1 auto; min-width: 0; }
+  .page-header { flex-wrap: wrap; gap: .6rem; }
+}
+
+/* Mobiel (576px en lager) — kleinere padding, kolommen verbergen */
+@media (max-width: 576px) {
+  #content { padding: .875rem; }
+  #topbar { padding: 0 .75rem; }
+  .stat-value { font-size: 1.35rem; }
+  .col-hide-mobile { display: none !important; }
+  .cms-card-body { padding: 1rem; }
+  .cms-card-header { padding: .875rem 1rem; }
+  .quick-add-btn { padding: .4rem .75rem; font-size: .82rem; }
 }
 
 /* Misc */
