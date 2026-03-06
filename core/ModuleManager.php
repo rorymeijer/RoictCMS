@@ -436,6 +436,109 @@ class ModuleManager {
         return ['success' => true, 'message' => 'Thema succesvol geïnstalleerd. U kunt het nu activeren.'];
     }
 
+    public static function installFromUpload(array $file): array {
+        if (!class_exists('ZipArchive')) {
+            return ['success' => false, 'message' => 'PHP ZipArchive extensie is niet beschikbaar op deze server.'];
+        }
+
+        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            return ['success' => false, 'message' => 'Upload mislukt.'];
+        }
+
+        $originalName = (string)($file['name'] ?? '');
+        if (strtolower(pathinfo($originalName, PATHINFO_EXTENSION)) !== 'zip') {
+            return ['success' => false, 'message' => 'Alleen ZIP-bestanden zijn toegestaan.'];
+        }
+
+        $tmpName = (string)($file['tmp_name'] ?? '');
+        if ($tmpName === '' || !is_uploaded_file($tmpName)) {
+            return ['success' => false, 'message' => 'Ongeldig uploadbestand ontvangen.'];
+        }
+
+        $zip = new ZipArchive();
+        $opened = $zip->open($tmpName);
+        if ($opened !== true) {
+            return ['success' => false, 'message' => 'Ongeldig ZIP-bestand.'];
+        }
+
+        $moduleJsonPath = null;
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $entry = $zip->getNameIndex($i);
+            if (!is_string($entry)) {
+                continue;
+            }
+            if (str_ends_with($entry, '/module.json') || $entry === 'module.json') {
+                $moduleJsonPath = $entry;
+                break;
+            }
+        }
+
+        if ($moduleJsonPath === null) {
+            $zip->close();
+            return ['success' => false, 'message' => 'ZIP bevat geen geldige module (module.json ontbreekt).'];
+        }
+
+        $moduleJsonRaw = $zip->getFromName($moduleJsonPath);
+        $moduleInfo = is_string($moduleJsonRaw) ? json_decode($moduleJsonRaw, true) : null;
+        if (!is_array($moduleInfo) || empty($moduleInfo['name']) || empty($moduleInfo['version'])) {
+            $zip->close();
+            return ['success' => false, 'message' => 'module.json is ongeldig of onvolledig.'];
+        }
+
+        $slugFromJson = preg_replace('/[^a-z0-9\-]/', '', strtolower((string)($moduleInfo['slug'] ?? '')));
+        $slugFromFolder = '';
+        if ($moduleJsonPath !== 'module.json') {
+            $firstPart = explode('/', $moduleJsonPath)[0] ?? '';
+            $slugFromFolder = preg_replace('/[^a-z0-9\-]/', '', strtolower((string)$firstPart));
+        }
+        $slugFromName = trim((string)($moduleInfo['name'] ?? ''));
+        $slugFromName = preg_replace('/[^a-z0-9\-]/', '-', strtolower($slugFromName));
+        $slugFromName = preg_replace('/-+/', '-', $slugFromName ?? '');
+        $slugFromName = trim((string)$slugFromName, '-');
+
+        $slug = $slugFromJson ?: ($slugFromFolder ?: $slugFromName);
+        if ($slug === '') {
+            $zip->close();
+            return ['success' => false, 'message' => 'Kon geen geldige moduleslug bepalen.'];
+        }
+
+        if (self::isInstalled($slug)) {
+            $zip->close();
+            return ['success' => false, 'message' => 'Module is al geïnstalleerd.'];
+        }
+
+        $tmpExtract = sys_get_temp_dir() . '/roict_upload_' . $slug . '_' . time();
+        $zip->extractTo($tmpExtract);
+        $zip->close();
+
+        $sourceDir = $tmpExtract;
+        if ($moduleJsonPath !== 'module.json') {
+            $moduleRoot = dirname($moduleJsonPath);
+            if ($moduleRoot !== '.') {
+                $candidate = $tmpExtract . '/' . $moduleRoot;
+                if (is_dir($candidate)) {
+                    $sourceDir = $candidate;
+                }
+            }
+        }
+
+        if (!file_exists($sourceDir . '/module.json')) {
+            self::rrmdir($tmpExtract);
+            return ['success' => false, 'message' => 'Upload bevat geen bruikbare module-structuur.'];
+        }
+
+        $destDir = MODULES_PATH . '/' . $slug;
+        if (is_dir($destDir)) {
+            self::rrmdir($tmpExtract);
+            return ['success' => false, 'message' => 'Modulemap bestaat al.'];
+        }
+
+        self::rcopy($sourceDir, $destDir);
+        self::rrmdir($tmpExtract);
+
+        return self::install($slug);
+    }
+
     /**
      * Download een ZIP van een URL en extraheer naar $targetDir/$slug
      * Ondersteunt GitHub releases én raw ZIP bestanden.
