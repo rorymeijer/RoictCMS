@@ -129,6 +129,20 @@ class ModuleManager {
     }
 
     /**
+     * Verwijder marketplace cache en forceer direct een nieuwe ZIP-check.
+     */
+    public static function refreshMarketplaceCache(): bool {
+        self::$zipCacheFile = BASE_PATH . '/api/zip_marketplace_cache.json';
+
+        if (file_exists(self::$zipCacheFile) && !@unlink(self::$zipCacheFile)) {
+            return false;
+        }
+
+        self::getMarketplace();
+        return true;
+    }
+
+    /**
      * Download een ZIP van GitHub en lees de module.json eruit zonder te installeren.
      */
     private static function readModuleJsonFromZip(string $zipUrl, string $slug): ?array {
