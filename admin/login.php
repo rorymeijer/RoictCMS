@@ -14,7 +14,7 @@ if (Auth::isLoggedIn()) {
 
 $error = '';
 
-if (!headers_sent() && ob_get_level() === 0) {
+if (!headers_sent()) {
     ob_start('admin_translate_html');
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
