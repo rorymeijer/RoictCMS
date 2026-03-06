@@ -10,11 +10,46 @@ function admin_available_languages(): array {
     ];
 }
 
-function admin_lang(): string {
-    $fallback = Settings::get('language', 'nl');
-    $lang = Settings::get('admin_language', $fallback);
+function normalize_language_code(?string $language): string {
+    $language = strtolower(trim((string)$language));
+    if ($language === '') {
+        return '';
+    }
+
+    // Ondersteun ook locale-vormen zoals en-US of nl_NL.
+    $base = preg_split('/[-_]/', $language, 2)[0] ?? '';
+    return preg_replace('/[^a-z]/', '', $base) ?: '';
+}
+
+function site_lang(): string {
     $supported = admin_available_languages();
-    return isset($supported[$lang]) ? $lang : 'nl';
+    $configured = normalize_language_code(Settings::get('language', 'nl'));
+    return isset($supported[$configured]) ? $configured : 'nl';
+}
+
+function admin_lang(): string {
+    $fallback = site_lang();
+    $lang = normalize_language_code(Settings::get('admin_language', $fallback));
+    $supported = admin_available_languages();
+    return isset($supported[$lang]) ? $lang : $fallback;
+}
+
+function apply_site_locale(): void {
+    $lang = site_lang();
+    $localeMap = [
+        'nl' => ['nl_NL.UTF-8', 'nl_NL', 'nl'],
+        'en' => ['en_US.UTF-8', 'en_US', 'en_GB.UTF-8', 'en_GB', 'en'],
+        'fr' => ['fr_FR.UTF-8', 'fr_FR', 'fr'],
+        'de' => ['de_DE.UTF-8', 'de_DE', 'de'],
+        'es' => ['es_ES.UTF-8', 'es_ES', 'es'],
+    ];
+    $locales = $localeMap[$lang] ?? $localeMap['nl'];
+
+    setlocale(LC_ALL, ...$locales);
+
+    if (class_exists('Locale')) {
+        Locale::setDefault(str_replace('.UTF-8', '', $locales[0]));
+    }
 }
 
 function admin_i18n_base_dictionary(): array {
