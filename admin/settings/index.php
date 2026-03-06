@@ -86,7 +86,7 @@ require_once __DIR__ . '/../includes/header.php';
               <label class="form-label">Taal</label>
               <select class="form-select" name="language">
                 <?php foreach (admin_available_languages() as $code => $label): ?>
-                <option value="<?= e($code) ?>" <?= Settings::get('language', 'nl') === $code ? 'selected' : '' ?>><?= e($label) ?></option>
+                <option value="<?= e($code) ?>" <?= site_lang() === $code ? 'selected' : '' ?>><?= e($label) ?></option>
                 <?php endforeach; ?>
               </select>
             </div>
@@ -94,7 +94,7 @@ require_once __DIR__ . '/../includes/header.php';
               <label class="form-label">Beheertaal</label>
               <select class="form-select" name="admin_language">
                 <?php foreach (admin_available_languages() as $code => $label): ?>
-                <option value="<?= e($code) ?>" <?= Settings::get('admin_language', Settings::get('language', 'nl')) === $code ? 'selected' : '' ?>><?= e($label) ?></option>
+                <option value="<?= e($code) ?>" <?= admin_lang() === $code ? 'selected' : '' ?>><?= e($label) ?></option>
                 <?php endforeach; ?>
               </select>
             </div>

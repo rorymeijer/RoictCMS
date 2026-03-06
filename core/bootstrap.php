@@ -98,6 +98,7 @@ function do_shortcode(string $content): string {
 if (INSTALLED) {
     Auth::init();
     Settings::init();
+    apply_site_locale();
     ModuleManager::init();
     ModuleManager::bootModules();
 }
