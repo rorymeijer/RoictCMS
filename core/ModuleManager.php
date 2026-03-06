@@ -1,7 +1,10 @@
 <?php
 class ModuleManager {
     private static $db;
-    private static $marketplaceUrl = 'https://raw.githubusercontent.com/rorymeijer/roictcms_modules/main/marketplace.json';
+    private static $modulesRepoApiUrl  = 'https://api.github.com/repos/rorymeijer/roictcms_modules/contents/';
+    private static $modulesRepoRawBase = 'https://github.com/rorymeijer/roictcms_modules/raw/main/';
+    private static $zipCacheFile       = null; // set lazily: BASE_PATH . '/api/zip_marketplace_cache.json'
+    private static $zipCacheInterval   = 900; // seconden tussen GitHub API checks (15 min)
 
     public static function init(): void {
         self::$db = Database::getInstance();
@@ -50,32 +53,191 @@ class ModuleManager {
     }
 
     public static function getMarketplace(): array {
-        // Primaire bron: GitHub (altijd actueel)
+        self::$zipCacheFile = BASE_PATH . '/api/zip_marketplace_cache.json';
+
+        // Laad bestaande cache
+        $cache = [];
+        if (file_exists(self::$zipCacheFile)) {
+            $cache = json_decode(file_get_contents(self::$zipCacheFile), true) ?? [];
+        }
+
+        // Gebruik cache als die nog vers genoeg is (< zipCacheInterval seconden oud)
+        if (!empty($cache['checked_at']) && (time() - $cache['checked_at']) < self::$zipCacheInterval) {
+            return self::buildMarketplaceFromCache($cache);
+        }
+
+        // Haal lijst van zip-bestanden op via GitHub API
         $ctx = stream_context_create([
             'http' => [
-                'timeout'    => 8,
+                'timeout'    => 10,
                 'user_agent' => 'ROICT-CMS/' . CMS_VERSION,
             ],
         ]);
-        $data = @file_get_contents(self::$marketplaceUrl, false, $ctx);
-        if ($data) {
-            $parsed = json_decode($data, true);
-            if (!empty($parsed['modules']) || !empty($parsed['themes'])) {
-                return $parsed;
+        $listJson = @file_get_contents(self::$modulesRepoApiUrl, false, $ctx);
+
+        if (!$listJson) {
+            // GitHub onbereikbaar: gebruik bestaande cache (ook als stale)
+            if (!empty($cache['modules'])) {
+                return self::buildMarketplaceFromCache($cache);
+            }
+            return self::getMockMarketplace();
+        }
+
+        $files = json_decode($listJson, true) ?? [];
+        $zipFiles = array_filter(
+            $files,
+            fn($f) => isset($f['name'], $f['sha'], $f['type'])
+                   && str_ends_with($f['name'], '.zip')
+                   && $f['type'] === 'file'
+        );
+
+        $modules = $cache['modules'] ?? [];
+
+        foreach ($zipFiles as $file) {
+            $slug = basename($file['name'], '.zip');
+            $sha  = $file['sha'];
+
+            // Sla over als de SHA niet veranderd is (zip is niet gewijzigd)
+            if (!empty($modules[$slug]) && ($modules[$slug]['_sha'] ?? '') === $sha) {
+                continue;
+            }
+
+            // Download zip en lees module.json eruit
+            $info = self::readModuleJsonFromZip(
+                self::$modulesRepoRawBase . $file['name'],
+                $slug
+            );
+            if ($info !== null) {
+                $info['_sha'] = $sha;
+                $modules[$slug] = $info;
             }
         }
 
-        // Fallback: lokale marketplace.json (offline / GitHub onbereikbaar)
+        // Verwijder modules waarvan de zip niet meer bestaat in de repo
+        $liveSlugs = array_map(fn($f) => basename($f['name'], '.zip'), array_values($zipFiles));
+        foreach (array_keys($modules) as $slug) {
+            if (!in_array($slug, $liveSlugs, true)) {
+                unset($modules[$slug]);
+            }
+        }
+
+        // Cache opslaan
+        $newCache = ['checked_at' => time(), 'modules' => $modules];
+        @file_put_contents(self::$zipCacheFile, json_encode($newCache));
+
+        return self::buildMarketplaceFromCache($newCache);
+    }
+
+    /**
+     * Download een ZIP van GitHub en lees de module.json eruit zonder te installeren.
+     */
+    private static function readModuleJsonFromZip(string $zipUrl, string $slug): ?array {
+        if (!class_exists('ZipArchive')) {
+            return null;
+        }
+
+        $ctx = stream_context_create([
+            'http' => [
+                'timeout'         => 20,
+                'user_agent'      => 'ROICT-CMS/' . CMS_VERSION,
+                'follow_location' => 1,
+            ],
+            'ssl' => [
+                'verify_peer'      => true,
+                'verify_peer_name' => true,
+            ],
+        ]);
+
+        $zipData = @file_get_contents($zipUrl, false, $ctx);
+        if ($zipData === false) {
+            return null;
+        }
+
+        $tmpFile = tempnam(sys_get_temp_dir(), 'roict_mkt_') . '.zip';
+        file_put_contents($tmpFile, $zipData);
+
+        $info = null;
+        $zip  = new ZipArchive();
+        if ($zip->open($tmpFile) === true) {
+            // Probeer {slug}/module.json, dan module.json aan de root
+            $json = $zip->getFromName($slug . '/module.json')
+                 ?: $zip->getFromName('module.json');
+            if ($json !== false) {
+                $info = json_decode($json, true);
+            }
+            $zip->close();
+        }
+        @unlink($tmpFile);
+
+        return $info;
+    }
+
+    /**
+     * Bouw de marketplace-array op uit de gecachede ZIP-metadata.
+     */
+    private static function buildMarketplaceFromCache(array $cache): array {
+        $modules = [];
+        foreach ($cache['modules'] ?? [] as $slug => $info) {
+            // Verwijder interne cachevelden
+            $entry = array_diff_key($info, ['_sha' => true]);
+
+            $entry['slug']        = $slug;
+            $entry['download_url'] = $entry['download_url']
+                ?? (self::$modulesRepoRawBase . $slug . '.zip');
+            $entry['price']    = $entry['price']    ?? 'free';
+            $entry['tags']     = $entry['tags']     ?? [];
+            $entry['downloads'] = $entry['downloads'] ?? 0;
+            $entry['rating']   = $entry['rating']   ?? 5.0;
+
+            // Leid status af uit versienummer als die ontbreekt
+            if (empty($entry['status'])) {
+                $parts = explode('.', $entry['version'] ?? '1.0.0');
+                $major = (int)($parts[0] ?? 0);
+                $minor = (int)($parts[1] ?? 0);
+                if ($major === 0 && $minor === 0) {
+                    $entry['status'] = 'alpha';
+                } elseif ($major === 0) {
+                    $entry['status'] = 'beta';
+                }
+            }
+
+            $modules[] = $entry;
+        }
+
+        usort($modules, fn($a, $b) => strcmp($a['name'] ?? '', $b['name'] ?? ''));
+
+        // Thema's: haal op via ThemeManager's eigen marketplace (ongewijzigd)
+        $themes = self::getThemeMarketplace();
+
+        return ['modules' => $modules, 'themes' => $themes];
+    }
+
+    /**
+     * Haal thema-marketplace op (marketplace.json van de themes-repo).
+     */
+    private static function getThemeMarketplace(): array {
+        $themesUrl = 'https://raw.githubusercontent.com/rorymeijer/roictcms_themes/main/marketplace.json';
+        $ctx = stream_context_create([
+            'http' => ['timeout' => 8, 'user_agent' => 'ROICT-CMS/' . CMS_VERSION],
+        ]);
+        $data = @file_get_contents($themesUrl, false, $ctx);
+        if ($data) {
+            $parsed = json_decode($data, true);
+            if (!empty($parsed['themes'])) {
+                return $parsed['themes'];
+            }
+        }
+
+        // Fallback: lokale api/marketplace.json
         $localFile = BASE_PATH . '/api/marketplace.json';
         if (file_exists($localFile)) {
             $parsed = json_decode(file_get_contents($localFile), true) ?? [];
-            if (!empty($parsed['modules']) || !empty($parsed['themes'])) {
-                return $parsed;
+            if (!empty($parsed['themes'])) {
+                return $parsed['themes'];
             }
         }
 
-        // Laatste redmiddel: hardcoded mock
-        return self::getMockMarketplace();
+        return self::getMockMarketplace()['themes'];
     }
 
     private static function getMockMarketplace(): array {
