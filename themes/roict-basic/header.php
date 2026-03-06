@@ -29,6 +29,10 @@
         <?php if (Settings::get('news_page_enabled', '1')): ?>
         <li><a href="<?= BASE_URL ?>/news" class="<?= ($currentPage ?? '') === 'news' ? 'active' : '' ?>"><?= e(Settings::get('news_page_title', 'Nieuws')) ?></a></li>
         <?php endif; ?>
+        <?php if (Settings::get('cp_portal_enabled') === '1'): ?>
+        <?php $cpSlug = trim(Settings::get('cp_portal_slug') ?: 'klanten-portaal', '/'); ?>
+        <li><a href="<?= BASE_URL ?>/<?= e($cpSlug) ?>" class="<?= ($currentSlug === $cpSlug) ? 'active' : '' ?>">Portaal</a></li>
+        <?php endif; ?>
       </ul>
       <div class="nav-cta">
         <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
