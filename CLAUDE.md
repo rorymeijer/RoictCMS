@@ -134,23 +134,31 @@ modules/{slug}/
 
 ## module.json
 
+Dit bestand dient zowel als module-metadata (voor de CMS-kernel) **als** als marketplace-catalogus. De marketplace leest dit bestand rechtstreeks uit de ZIP.
+
 ```json
 {
   "name": "Naam van de module",
   "version": "1.0.0",
-  "status": "alpha",
   "author": "Auteursnaam",
   "author_url": "https://voorbeeld.nl",
   "description": "Korte beschrijving van wat de module doet.",
   "category": "Categorie",
-  "icon": "bootstrap-icon-naam"
+  "icon": "bootstrap-icon-naam",
+  "status": "alpha",
+  "tags": ["tag1", "tag2"],
+  "price": "free",
+  "requires": ["andere-module"]
 }
 ```
 
 - `icon`: gebruik een naam uit [Bootstrap Icons](https://icons.getbootstrap.com/), bijv. `"envelope"`, `"image"`, `"graph-up"`.
 - `category`: vrije tekst, bijv. `"Communication"`, `"SEO"`, `"E-Commerce"`.
-- `status`: optioneel. Gebruik `"alpha"` voor vroege releases (versie 0.0.x), `"beta"` voor testversies (versie 0.x.x). Weglaten voor stabiele releases (versie 1.x.x+).
+- `status`: optioneel. Gebruik `"alpha"` voor vroege releases (versie 0.0.x), `"beta"` voor testversies (versie 0.x.x). Weglaten voor stabiele releases (versie 1.x.x+). Wordt automatisch afgeleid als weggelaten.
 - `author_url`: optioneel. Website van de auteur of organisatie.
+- `tags`: optioneel. Trefwoorden voor zoeken in de marketplace.
+- `price`: optioneel. Standaard `"free"`. Gebruik `"€29"` e.d. voor betaalde modules.
+- `requires`: optioneel. Slugs van modules die vereist zijn.
 
 ---
 
@@ -482,30 +490,45 @@ require_once ADMIN_PATH . '/includes/header.php';
 
 ---
 
-## Marketplace-registratie (api/marketplace.json)
+## Marketplace-registratie
 
-Om een module beschikbaar te maken in de marketplace, voeg je deze toe aan `api/marketplace.json`:
+De marketplace leest metadata **direct uit de `module.json` in de ZIP-bestanden** in de `roictcms_modules` repository. Er is geen aparte `marketplace.json` meer nodig.
+
+### Hoe werkt het?
+
+1. De CMS bevraagt de GitHub API om alle `.zip`-bestanden in de `roictcms_modules` repo op te halen.
+2. Per ZIP wordt de `module.json` uitgelezen (met SHA-gebaseerde cache zodat alleen gewijzigde ZIPs opnieuw gedownload worden).
+3. De `download_url` wordt automatisch afgeleid: `https://github.com/rorymeijer/roictcms_modules/raw/main/{slug}.zip`.
+4. Resultaten worden maximaal 15 minuten gecached in `api/zip_marketplace_cache.json`.
+
+### Vereiste velden in `module.json`
+
+Om een module in de marketplace zichtbaar te maken, voeg je de ZIP toe aan de `roictcms_modules` repo. De `module.json` **moet** bevatten:
 
 ```json
 {
-  "modules": [
-    {
-      "slug": "mijn-module",
-      "name": "Mijn Module",
-      "description": "Beschrijving van wat de module doet.",
-      "version": "1.0.0",
-      "status": "alpha",
-      "author": "Auteursnaam",
-      "author_url": "https://voorbeeld.nl",
-      "category": "Categorie",
-      "icon": "icon-naam",
-      "tags": ["tag1", "tag2"],
-      "price": "free",
-      "download_url": "https://url-naar-zip-bestand.zip"
-    }
-  ]
+  "name": "Mijn Module",
+  "version": "1.0.0",
+  "author": "Auteursnaam",
+  "description": "Beschrijving van wat de module doet.",
+  "category": "Categorie",
+  "icon": "icon-naam"
 }
 ```
 
-- `status`: optioneel. `"alpha"` voor versie 0.0.x, `"beta"` voor versie 0.x.x, weglaten voor stabiel (1.x.x+).
-- `author_url`: optioneel. Website van de auteur.
+### Optionele marketplace-velden
+
+```json
+{
+  "status": "alpha",
+  "author_url": "https://voorbeeld.nl",
+  "tags": ["tag1", "tag2"],
+  "price": "free",
+  "requires": ["andere-module"]
+}
+```
+
+- `status`: `"alpha"` (0.0.x), `"beta"` (0.x.x), weglaten voor stabiel (1.x.x+). Wordt automatisch afgeleid als weggelaten.
+- `price`: standaard `"free"` als weggelaten.
+- `tags`: standaard `[]` als weggelaten.
+- `download_url`: wordt automatisch berekend; alleen opgeven als de ZIP op een andere locatie staat.
