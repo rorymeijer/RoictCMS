@@ -204,6 +204,14 @@ class ModuleManager {
             $modules[] = $entry;
         }
 
+        // Verberg alpha/beta modules tenzij de instelling is ingeschakeld
+        if (Settings::get('marketplace_show_alpha_beta', '0') !== '1') {
+            $modules = array_values(array_filter(
+                $modules,
+                fn($m) => !in_array($m['status'] ?? '', ['alpha', 'beta'], true)
+            ));
+        }
+
         usort($modules, fn($a, $b) => strcmp($a['name'] ?? '', $b['name'] ?? ''));
 
         // Thema's: haal op via ThemeManager's eigen marketplace (ongewijzigd)
