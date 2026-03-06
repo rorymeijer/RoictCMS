@@ -34,6 +34,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax'])) {
     exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['manual_upload'])) {
+    if (!csrf_verify()) {
+        flash('error', 'Beveiligingsfout.');
+        redirect(BASE_URL . '/admin/marketplace/?tab=modules');
+    }
+
+    if (Settings::get('marketplace_manual_upload', '0') !== '1') {
+        flash('error', 'Handmatige uploads zijn uitgeschakeld in de instellingen.');
+        redirect(BASE_URL . '/admin/marketplace/?tab=modules');
+    }
+
+    $result = ModuleManager::installFromUpload($_FILES['module_zip'] ?? []);
+    flash($result['success'] ? 'success' : 'error', $result['message']);
+    redirect(BASE_URL . '/admin/marketplace/?tab=modules');
+}
+
 $marketplace = ModuleManager::getMarketplace();
 // Bouw een lookup van remote versies voor update-vergelijking
 $remoteVersions = [];
@@ -73,6 +89,21 @@ require_once __DIR__ . '/../includes/header.php';
 </div>
 
 <?php if ($tab === 'modules'): ?>
+<?php $manualUploadEnabled = Settings::get('marketplace_manual_upload', '0') === '1'; ?>
+<?php if ($manualUploadEnabled): ?>
+<div class="cms-card mb-4">
+  <div class="cms-card-header"><span class="cms-card-title"><i class="bi bi-upload me-2"></i>Handmatige module upload</span></div>
+  <div class="cms-card-body">
+    <p class="text-muted mb-3" style="font-size:.85rem;">Upload een ZIP met een geldige <code>module.json</code>. Random ZIP-bestanden worden geweigerd.</p>
+    <form method="POST" enctype="multipart/form-data" class="d-flex flex-wrap gap-2 align-items-center">
+      <?= csrf_field() ?>
+      <input type="hidden" name="manual_upload" value="1">
+      <input type="file" name="module_zip" class="form-control" accept=".zip,application/zip" required style="max-width:360px;">
+      <button type="submit" class="btn btn-primary"><i class="bi bi-cloud-arrow-up me-1"></i> Upload & installeer</button>
+    </form>
+  </div>
+</div>
+<?php endif; ?>
 <!-- Search & filter bar -->
 <div class="d-flex gap-3 align-items-center mb-4 flex-wrap">
   <input type="search" id="market-search" class="form-control" style="max-width:300px;" placeholder="Modules zoeken...">

@@ -15,14 +15,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
         redirect(BASE_URL . '/admin/settings/');
     }
 
-    $allowed = ['site_name','site_tagline','site_email','posts_per_page','date_format','timezone','language','maintenance_mode','maintenance_message','footer_text','homepage_type','homepage_page_id','marketplace_show_released','marketplace_show_beta','marketplace_show_alpha'];
+    $allowed = ['site_name','site_tagline','site_email','posts_per_page','date_format','timezone','language','maintenance_mode','maintenance_message','footer_text','homepage_type','homepage_page_id','marketplace_show_released','marketplace_show_beta','marketplace_show_alpha','marketplace_manual_upload'];
     $data = array_intersect_key($_POST, array_flip($allowed));
     // Ensure homepage_page_id is stored as int
     if (isset($data['homepage_page_id'])) {
         $data['homepage_page_id'] = (int)$data['homepage_page_id'];
     }
     // Checkboxes: als niet aangevinkt stuurt de browser geen waarde mee, expliciet op '0' zetten
-    foreach (['maintenance_mode', 'marketplace_show_released', 'marketplace_show_beta', 'marketplace_show_alpha'] as $cb) {
+    foreach (['maintenance_mode', 'marketplace_show_released', 'marketplace_show_beta', 'marketplace_show_alpha', 'marketplace_manual_upload'] as $cb) {
         if (!isset($data[$cb])) $data[$cb] = '0';
     }
     Settings::setMultiple($data);
@@ -141,6 +141,10 @@ require_once __DIR__ . '/../includes/header.php';
           <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" name="marketplace_show_alpha" value="1" id="mkt_alpha" <?= Settings::get('marketplace_show_alpha', '0') == '1' ? 'checked' : '' ?>>
             <label class="form-check-label" for="mkt_alpha">Alpha <span class="badge bg-danger ms-1">Alpha</span></label>
+          </div>
+          <div class="form-check form-switch mt-2">
+            <input class="form-check-input" type="checkbox" name="marketplace_manual_upload" value="1" id="mkt_manual_upload" <?= Settings::get('marketplace_manual_upload', '0') == '1' ? 'checked' : '' ?>>
+            <label class="form-check-label" for="mkt_manual_upload">Manuale upload <span class="badge bg-info text-dark ms-1">ZIP</span></label>
           </div>
           <div class="mt-3">
             <button type="submit" name="refresh_marketplace_cache" value="1" class="btn btn-outline-secondary btn-sm">
