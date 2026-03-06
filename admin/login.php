@@ -13,6 +13,10 @@ if (Auth::isLoggedIn()) {
 }
 
 $error = '';
+
+if (!headers_sent() && ob_get_level() === 0) {
+    ob_start('admin_translate_html');
+}
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (Auth::login($_POST['username'] ?? '', $_POST['password'] ?? '')) {
         redirect(BASE_URL . '/admin/');
@@ -22,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="<?= e(admin_lang()) ?>">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">

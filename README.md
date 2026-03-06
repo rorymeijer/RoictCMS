@@ -112,6 +112,27 @@ De marketplace leest van `api/marketplace.json` of een externe URL:
 }
 ```
 
+## 🌍 Module vertalingen (admin)
+
+Modules kunnen eigen admin-vertalingen aanleveren. Plaats per module een taalbestand in:
+
+- `modules/<slug>/lang/admin.<taalcode>.php` *(voorkeur)*
+- of `modules/<slug>/lang/<taalcode>.php`
+
+Ondersteunde taalcodes: `nl`, `en`, `fr`, `de`, `es`.
+
+Het bestand moet een PHP-array retourneren met sleutel/waarde paren voor tekstvervanging, bijvoorbeeld:
+
+```php
+<?php
+return [
+    'Mijn module' => 'My module',
+    'Instellingen' => 'Settings',
+];
+```
+
+Deze vertalingen worden automatisch opgepakt in de admin zodra de module aanwezig is.
+
 ## 🔒 Beveiliging
 
 - CSRF beveiliging op alle formulieren

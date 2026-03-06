@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
         redirect(BASE_URL . '/admin/settings/');
     }
 
-    $allowed = ['site_name','site_tagline','site_email','posts_per_page','date_format','timezone','language','maintenance_mode','maintenance_message','footer_text','homepage_type','homepage_page_id','marketplace_show_released','marketplace_show_beta','marketplace_show_alpha','marketplace_manual_upload'];
+    $allowed = ['site_name','site_tagline','site_email','posts_per_page','date_format','timezone','language','admin_language','maintenance_mode','maintenance_message','footer_text','homepage_type','homepage_page_id','marketplace_show_released','marketplace_show_beta','marketplace_show_alpha','marketplace_manual_upload'];
     $data = array_intersect_key($_POST, array_flip($allowed));
     // Ensure homepage_page_id is stored as int
     if (isset($data['homepage_page_id'])) {
@@ -74,8 +74,17 @@ require_once __DIR__ . '/../includes/header.php';
             <div class="col-md-6">
               <label class="form-label">Taal</label>
               <select class="form-select" name="language">
-                <option value="nl" <?= Settings::get('language', '') === 'nl' ? 'selected' : '' ?>>Nederlands</option>
-                <option value="en" <?= Settings::get('language', '') === 'en' ? 'selected' : '' ?>>English</option>
+                <?php foreach (admin_available_languages() as $code => $label): ?>
+                <option value="<?= e($code) ?>" <?= Settings::get('language', 'nl') === $code ? 'selected' : '' ?>><?= e($label) ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Beheertaal</label>
+              <select class="form-select" name="admin_language">
+                <?php foreach (admin_available_languages() as $code => $label): ?>
+                <option value="<?= e($code) ?>" <?= Settings::get('admin_language', Settings::get('language', 'nl')) === $code ? 'selected' : '' ?>><?= e($label) ?></option>
+                <?php endforeach; ?>
               </select>
             </div>
           </div>
