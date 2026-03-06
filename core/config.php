@@ -1,6 +1,6 @@
 <?php
 // CMS Core Configuration
-define('CMS_VERSION', '1.0.51');
+define('CMS_VERSION', '1.0.52');
 define('CMS_NAME', 'ROICT CMS');
 define('BASE_PATH', dirname(__DIR__));
 
