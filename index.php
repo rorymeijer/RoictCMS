@@ -145,6 +145,10 @@ if ($page) {
     exit;
 }
 
+// Module frontend route hook – laat actieve modules de URL onderscheppen
+// vóór de 404 handler. De module roept zelf exit() aan als hij de route afhandelt.
+do_action('frontend_route', $uri);
+
 // 404
 http_response_code(404);
 include themeFile('header.php');
