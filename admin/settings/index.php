@@ -132,9 +132,14 @@ require_once __DIR__ . '/../includes/header.php';
             <?= Settings::get('marketplace_show_beta', '0') == '1' ? 'checked' : '' ?>>
             Beta <sl-badge variant="warning" style="margin-left:.4rem;">Beta</sl-badge>
           </sl-switch>
-          <sl-switch class="mb-2" name="marketplace_show_alpha" value="1"
+          <sl-switch class="mb-2" id="mkt_alpha_sl" name="marketplace_show_alpha" value="1"
             <?= Settings::get('marketplace_show_alpha', '0') == '1' ? 'checked' : '' ?>>
             Alpha <sl-badge variant="danger" style="margin-left:.4rem;">Alpha</sl-badge>
+          </sl-switch>
+          <sl-switch class="mb-2" id="mkt_dev_row_sl" name="marketplace_show_dev" value="1"
+            <?= Settings::get('marketplace_show_dev', '0') == '1' ? 'checked' : '' ?>
+            style="display:none">
+            Dev <sl-badge style="margin-left:.4rem;--sl-color-primary-600:#6f42c1;">Dev</sl-badge>
           </sl-switch>
           <sl-switch class="mb-3" name="marketplace_manual_upload" value="1"
             <?= Settings::get('marketplace_manual_upload', '0') == '1' ? 'checked' : '' ?>>
@@ -145,32 +150,6 @@ require_once __DIR__ . '/../includes/header.php';
               <i slot="prefix" class="bi bi-arrow-clockwise"></i> Cache flushen & ZIP opnieuw ophalen
             </sl-button>
             <div class="text-muted mt-1" style="font-size:.78rem;">Forceert direct een nieuwe controle van ZIP-bestanden.</div>
-          <p class="text-muted mb-2" style="font-size:.85rem;">Kies welke modulestatus zichtbaar is in de marketplace.</p>
-          <div class="form-check form-switch mb-2">
-            <input class="form-check-input" type="checkbox" name="marketplace_show_released" value="1" id="mkt_released" <?= Settings::get('marketplace_show_released', '1') !== '0' ? 'checked' : '' ?>>
-            <label class="form-check-label" for="mkt_released">Released <span class="badge bg-success ms-1">Stabiel</span></label>
-          </div>
-          <div class="form-check form-switch mb-2">
-            <input class="form-check-input" type="checkbox" name="marketplace_show_beta" value="1" id="mkt_beta" <?= Settings::get('marketplace_show_beta', '0') == '1' ? 'checked' : '' ?>>
-            <label class="form-check-label" for="mkt_beta">Beta <span class="badge bg-warning text-dark ms-1">Beta</span></label>
-          </div>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" name="marketplace_show_alpha" value="1" id="mkt_alpha" <?= Settings::get('marketplace_show_alpha', '0') == '1' ? 'checked' : '' ?>>
-            <label class="form-check-label" for="mkt_alpha">Alpha <span class="badge bg-danger ms-1">Alpha</span></label>
-          </div>
-          <div class="form-check form-switch mt-2" id="mkt_dev_row" style="display:none;">
-            <input class="form-check-input" type="checkbox" name="marketplace_show_dev" value="1" id="mkt_dev" <?= Settings::get('marketplace_show_dev', '0') == '1' ? 'checked' : '' ?>>
-            <label class="form-check-label" for="mkt_dev">Dev <span class="badge ms-1" style="background:#6f42c1;">Dev</span></label>
-          </div>
-          <div class="form-check form-switch mt-2">
-            <input class="form-check-input" type="checkbox" name="marketplace_manual_upload" value="1" id="mkt_manual_upload" <?= Settings::get('marketplace_manual_upload', '0') == '1' ? 'checked' : '' ?>>
-            <label class="form-check-label" for="mkt_manual_upload">Manuale upload <span class="badge bg-info text-dark ms-1">ZIP</span></label>
-          </div>
-          <div class="mt-3">
-            <button type="submit" name="refresh_marketplace_cache" value="1" class="btn btn-outline-secondary btn-sm">
-              <i class="bi bi-arrow-clockwise me-1"></i> Cache flushen & ZIP opnieuw ophalen
-            </button>
-            <div class="text-muted" style="font-size:.78rem;">Forceert direct een nieuwe controle van ZIP-bestanden in de module marketplace.</div>
           </div>
         </div>
       </div>
@@ -209,9 +188,9 @@ require_once __DIR__ . '/../includes/header.php';
 <script>
 (function() {
   var STORAGE_KEY = 'roict_dev_switch_unlocked';
-  var devRow = document.getElementById('mkt_dev_row');
-  var alphaCheckbox = document.getElementById('mkt_alpha');
-  if (!devRow || !alphaCheckbox) return;
+  var devRow = document.getElementById('mkt_dev_row_sl');
+  var alphaSwitch = document.getElementById('mkt_alpha_sl');
+  if (!devRow || !alphaSwitch) return;
 
   // Als de dev switch al eerder ontgrendeld is, direct tonen
   if (localStorage.getItem(STORAGE_KEY) === '1') {
@@ -220,7 +199,7 @@ require_once __DIR__ . '/../includes/header.php';
 
   var alphaClickCount = 0;
 
-  alphaCheckbox.addEventListener('change', function() {
+  alphaSwitch.addEventListener('sl-change', function() {
     // Toon dev switch pas als hij nog verborgen is
     if (localStorage.getItem(STORAGE_KEY) === '1') return;
 
