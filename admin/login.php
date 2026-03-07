@@ -32,6 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Inloggen — <?= e(Settings::get('site_name', 'ROICT CMS')) ?></title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.12.0/cdn/themes/light.css">
+<script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.12.0/cdn/shoelace.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 <?php do_action('admin_login_head'); ?>
 <style>
@@ -40,12 +42,10 @@ body { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%
 .login-header { background: linear-gradient(135deg, #2563eb, #7c3aed); padding: 2.5rem; color: white; text-align: center; }
 .login-logo { width: 56px; height: 56px; background: rgba(255,255,255,.2); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 1rem; }
 .login-body { padding: 2.25rem; }
-.form-control { border-radius: 10px; padding: .65rem 1rem; border: 1.5px solid #e2e8f0; }
-.form-control:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+sl-input { --sl-input-border-color: #e2e8f0; --sl-input-border-color-focus: #2563eb; --sl-focus-ring-color: rgba(37,99,235,.1); --sl-input-border-radius-medium: 10px; }
+sl-alert { --sl-border-radius-medium: 10px; }
 .btn-login { background: linear-gradient(135deg, #2563eb, #7c3aed); border: none; color: white; width: 100%; padding: .75rem; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: opacity .2s; }
 .btn-login:hover { opacity: .9; }
-.input-group-text { border-radius: 10px 0 0 10px; border: 1.5px solid #e2e8f0; border-right: none; background: #f8fafc; }
-.input-group .form-control { border-radius: 0 10px 10px 0; }
 </style>
 </head>
 <body>
@@ -58,25 +58,22 @@ body { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%
     </div>
     <div class="login-body">
       <?php if ($error): ?>
-      <div class="alert alert-danger d-flex align-items-center gap-2 mb-4">
-        <i class="bi bi-exclamation-triangle-fill"></i><?= e($error) ?>
-      </div>
+      <sl-alert variant="danger" open style="margin-bottom:1.25rem;">
+        <sl-icon slot="icon" name="exclamation-triangle"></sl-icon><?= e($error) ?>
+      </sl-alert>
       <?php endif; ?>
       <form method="POST" autocomplete="on">
         <?= csrf_field() ?>
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Gebruikersnaam of Email</label>
-          <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-person"></i></span>
-            <input type="text" class="form-control" name="username" value="<?= e($_POST['username'] ?? '') ?>" autofocus required>
-          </div>
+        <div style="margin-bottom:1rem;">
+          <sl-input label="Gebruikersnaam of Email" type="text" name="username"
+            value="<?= e($_POST['username'] ?? '') ?>" autofocus required>
+            <i slot="prefix" class="bi bi-person"></i>
+          </sl-input>
         </div>
-        <div class="mb-4">
-          <label class="form-label fw-semibold">Wachtwoord</label>
-          <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-lock"></i></span>
-            <input type="password" class="form-control" name="password" required>
-          </div>
+        <div style="margin-bottom:1.5rem;">
+          <sl-input label="Wachtwoord" type="password" name="password" required password-toggle>
+            <i slot="prefix" class="bi bi-lock"></i>
+          </sl-input>
         </div>
         <button type="submit" class="btn-login">Inloggen →</button>
       </form>

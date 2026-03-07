@@ -78,16 +78,21 @@ require_once __DIR__ . '/../includes/header.php';
       <div class="col-md-5">
         <div class="d-grid gap-2">
           <?php if ($updateInfo['update_available']): ?>
-          <form method="POST" onsubmit="return confirm('CMS updaten naar v<?= e($updateInfo['latest']) ?>? Zorg voor een backup!')">
+          <form method="POST" id="update-form">
             <?= csrf_field() ?>
-            <button type="submit" name="perform_update" class="btn btn-primary w-100">
-              <i class="bi bi-arrow-up-circle me-2"></i>Updaten naar v<?= e($updateInfo['latest']) ?>
-            </button>
+            <sl-button type="submit" name="perform_update" value="1" variant="primary" class="w-100"
+              onclick="return handleUpdateClick(this, 'v<?= e($updateInfo['latest']) ?>')">
+              <i slot="prefix" class="bi bi-arrow-up-circle"></i>Updaten naar v<?= e($updateInfo['latest']) ?>
+            </sl-button>
           </form>
           <?php else: ?>
-          <button class="btn btn-outline-secondary" disabled><i class="bi bi-check-circle me-2"></i>Alles up-to-date</button>
+          <sl-button variant="neutral" outline disabled class="w-100">
+            <i slot="prefix" class="bi bi-check-circle"></i>Alles up-to-date
+          </sl-button>
           <?php endif; ?>
-          <a href="" class="btn btn-outline-secondary"><i class="bi bi-arrow-clockwise me-1"></i>Opnieuw controleren</a>
+          <sl-button href="" variant="neutral" outline class="w-100">
+            <i slot="prefix" class="bi bi-arrow-clockwise"></i>Opnieuw controleren
+          </sl-button>
     <?php if (!empty($updateSteps)): ?>
     <div class="mt-4">
       <div class="fw-semibold mb-2" style="font-size:.85rem;">Update log:</div>
@@ -113,9 +118,9 @@ require_once __DIR__ . '/../includes/header.php';
   </div>
   <div class="cms-card-body">
     <p class="text-muted mb-3" style="font-size:.88rem;">Maak een volledige backup van uw CMS bestanden en database voor u een update uitvoert.</p>
-    <button class="btn btn-outline-secondary" onclick="createBackup(this)">
-      <i class="bi bi-download me-1"></i>Backup nu maken
-    </button>
+    <sl-button variant="neutral" outline onclick="createBackup(this)">
+      <i slot="prefix" class="bi bi-download"></i>Backup nu maken
+    </sl-button>
   </div>
 </div>
 
@@ -123,7 +128,7 @@ require_once __DIR__ . '/../includes/header.php';
 <div class="cms-card">
   <div class="cms-card-header">
     <span class="cms-card-title"><i class="bi bi-puzzle me-2"></i>Geïnstalleerde Modules</span>
-    <a href="<?= BASE_URL ?>/admin/modules/" class="btn btn-sm btn-outline-secondary">Beheren</a>
+    <sl-button href="<?= BASE_URL ?>/admin/modules/" size="small" variant="neutral" outline>Beheren</sl-button>
   </div>
   <?php if (!$installedModules): ?>
   <div class="cms-card-body text-center text-muted py-4">Geen modules geïnstalleerd.</div>
@@ -135,7 +140,7 @@ require_once __DIR__ . '/../includes/header.php';
     <tr>
       <td class="fw-semibold"><?= e($m['name']) ?></td>
       <td><code style="font-size:.8rem;">v<?= e($m['version']) ?></code></td>
-      <td><span class="badge-status badge-<?= $m['status'] ?>"><?= $m['status'] === 'active' ? 'Actief' : 'Inactief' ?></span></td>
+      <td><sl-badge variant="<?= $m['status'] === 'active' ? 'primary' : 'danger' ?>" pill><?= $m['status'] === 'active' ? 'Actief' : 'Inactief' ?></sl-badge></td>
       <td class="text-muted"><?= date('d M Y', strtotime($m['installed_at'])) ?></td>
     </tr>
     <?php endforeach; ?>
@@ -146,18 +151,22 @@ require_once __DIR__ . '/../includes/header.php';
 
 <script>
 function createBackup(btn) {
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Backup aanmaken...';
+  btn.setAttribute('loading', '');
   setTimeout(() => {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="bi bi-download me-1"></i>Backup nu maken';
-    const t = document.createElement('div');
-    t.className = 'alert alert-success';
-    t.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.15);';
-    t.innerHTML = '<i class="bi bi-check-circle me-2"></i>Backup aangemaakt!';
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), 3000);
+    btn.removeAttribute('loading');
+    showToast('success', 'Backup aangemaakt!');
   }, 2000);
+}
+async function handleUpdateClick(btn, version) {
+  const confirmed = await cmsConfirm(
+    'CMS updaten naar ' + version + '? Zorg eerst voor een backup!',
+    'Updaten'
+  );
+  if (confirmed) {
+    btn.setAttribute('loading', '');
+    document.getElementById('update-form').submit();
+  }
+  return false;
 }
 </script>
 

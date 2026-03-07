@@ -76,19 +76,16 @@ require_once __DIR__ . '/../includes/header.php';
   </div>
 </div>
 
-<!-- Tabs -->
-<div class="mb-4">
-  <div style="display:inline-flex;background:white;border:1px solid var(--border);border-radius:12px;padding:4px;gap:4px;">
-    <a href="?tab=modules" class="tab-btn <?= $tab === 'modules' ? 'active' : '' ?>" style="padding:.45rem 1.25rem;border-radius:9px;text-decoration:none;font-size:.875rem;font-weight:600;transition:all .15s;<?= $tab === 'modules' ? 'background:var(--primary);color:white;' : 'color:var(--text-muted);' ?>">
-      <i class="bi bi-puzzle me-1"></i> Modules
-    </a>
-    <a href="?tab=themes" class="tab-btn <?= $tab === 'themes' ? 'active' : '' ?>" style="padding:.45rem 1.25rem;border-radius:9px;text-decoration:none;font-size:.875rem;font-weight:600;transition:all .15s;<?= $tab === 'themes' ? 'background:var(--primary);color:white;' : 'color:var(--text-muted);' ?>">
-      <i class="bi bi-palette me-1"></i> Thema's
-    </a>
-  </div>
-</div>
+<sl-tab-group id="market-tabs">
+  <sl-tab slot="nav" panel="modules" <?= $tab !== 'themes' ? 'active' : '' ?>>
+    <i class="bi bi-puzzle me-1"></i> Modules
+  </sl-tab>
+  <sl-tab slot="nav" panel="themes" <?= $tab === 'themes' ? 'active' : '' ?>>
+    <i class="bi bi-palette me-1"></i> Thema's
+  </sl-tab>
 
-<?php if ($tab === 'modules'): ?>
+  <!-- MODULES PANEL -->
+  <sl-tab-panel name="modules">
 <?php $manualUploadEnabled = Settings::get('marketplace_manual_upload', '0') === '1'; ?>
 <?php if ($manualUploadEnabled): ?>
 <div class="cms-card mb-4">
@@ -99,20 +96,22 @@ require_once __DIR__ . '/../includes/header.php';
       <?= csrf_field() ?>
       <input type="hidden" name="manual_upload" value="1">
       <input type="file" name="module_zip" class="form-control" accept=".zip,application/zip" required style="max-width:360px;">
-      <button type="submit" class="btn btn-primary"><i class="bi bi-cloud-arrow-up me-1"></i> Upload & installeer</button>
+      <sl-button type="submit" variant="primary">
+        <i slot="prefix" class="bi bi-cloud-arrow-up"></i> Upload & installeer
+      </sl-button>
     </form>
   </div>
 </div>
 <?php endif; ?>
 <!-- Search & filter bar -->
 <div class="d-flex gap-3 align-items-center mb-4 flex-wrap">
-  <input type="search" id="market-search" class="form-control" style="max-width:300px;" placeholder="Modules zoeken...">
+  <sl-input id="market-search" type="search" placeholder="Modules zoeken..." style="max-width:300px;"></sl-input>
   <div class="d-flex gap-2 flex-wrap" id="category-filters">
-    <button class="filter-btn active" data-cat="all">Alles</button>
+    <sl-button class="filter-btn" variant="primary" size="small" data-cat="all">Alles</sl-button>
     <?php
     $cats = array_unique(array_column($marketplace['modules'] ?? [], 'category'));
     foreach ($cats as $cat): ?>
-    <button class="filter-btn" data-cat="<?= e($cat) ?>"><?= e($cat) ?></button>
+    <sl-button class="filter-btn" variant="neutral" outline size="small" data-cat="<?= e($cat) ?>"><?= e($cat) ?></sl-button>
     <?php endforeach; ?>
   </div>
 </div>
@@ -134,11 +133,11 @@ require_once __DIR__ . '/../includes/header.php';
         <div style="flex:1;min-width:0;">
           <div class="d-flex align-items-center gap-2 flex-wrap">
             <span class="fw-bold"><?= e($item['name']) ?></span>
-            <span class="badge bg-secondary" style="font-size:.65rem;"><?= e($item['category']) ?></span>
+            <sl-badge variant="neutral" style="font-size:.65rem;"><?= e($item['category']) ?></sl-badge>
             <?php if (($item['status'] ?? '') === 'alpha'): ?>
-            <span class="badge" style="font-size:.65rem;background:#dc2626;color:white;">Alpha</span>
+            <sl-badge variant="danger" style="font-size:.65rem;">Alpha</sl-badge>
             <?php elseif (($item['status'] ?? '') === 'beta'): ?>
-            <span class="badge" style="font-size:.65rem;background:#d97706;color:white;">Beta</span>
+            <sl-badge variant="warning" style="font-size:.65rem;">Beta</sl-badge>
             <?php endif; ?>
           </div>
         </div>
@@ -170,21 +169,21 @@ require_once __DIR__ . '/../includes/header.php';
         <div class="d-flex gap-2 align-items-center">
           <?php if ($installed): ?>
           <?php if ($hasUpdate): ?>
-          <button class="btn btn-sm btn-warning" onclick="updateModule('<?= e($item['slug']) ?>', '<?= e($updateUrl) ?>', this)" title="Bijwerken naar v<?= e($remoteVersions[$item['slug']]['version']) ?>">
-            <i class="bi bi-arrow-up-circle me-1"></i> Update
-          </button>
+          <sl-button size="small" variant="warning" onclick="updateModule('<?= e($item['slug']) ?>', '<?= e($updateUrl) ?>', this)" title="Bijwerken naar v<?= e($remoteVersions[$item['slug']]['version']) ?>">
+            <i slot="prefix" class="bi bi-arrow-up-circle"></i> Update
+          </sl-button>
           <?php endif; ?>
-          <span class="badge-status <?= $isActive ? 'badge-active' : 'badge-inactive' ?>" style="font-size:.7rem;"><?= $isActive ? 'Actief' : 'Inactief' ?></span>
-          <button class="btn btn-sm btn-outline-secondary" onclick="toggleModule('<?= e($item['slug']) ?>', this)" title="<?= $isActive ? 'Deactiveren' : 'Activeren' ?>">
+          <sl-badge variant="<?= $isActive ? 'primary' : 'danger' ?>" pill style="font-size:.7rem;"><?= $isActive ? 'Actief' : 'Inactief' ?></sl-badge>
+          <sl-button size="small" variant="neutral" outline onclick="toggleModule('<?= e($item['slug']) ?>', this)" title="<?= $isActive ? 'Deactiveren' : 'Activeren' ?>">
             <i class="bi bi-<?= $isActive ? 'pause' : 'play' ?>-fill"></i>
-          </button>
-          <button class="btn btn-sm btn-outline-danger" onclick="uninstallModule('<?= e($item['slug']) ?>', this)">
+          </sl-button>
+          <sl-button size="small" variant="danger" outline onclick="uninstallModule('<?= e($item['slug']) ?>', this)">
             <i class="bi bi-trash"></i>
-          </button>
+          </sl-button>
           <?php else: ?>
-          <button class="btn btn-sm btn-primary install-btn" onclick="installItem('<?= e($item['slug']) ?>', 'module', '<?= e($item['download_url'] ?? '') ?>', this)">
-            <i class="bi bi-download me-1"></i> Installeren
-          </button>
+          <sl-button size="small" variant="primary" class="install-btn" onclick="installItem('<?= e($item['slug']) ?>', 'module', '<?= e($item['download_url'] ?? '') ?>', this)">
+            <i slot="prefix" class="bi bi-download"></i> Installeren
+          </sl-button>
           <?php endif; ?>
         </div>
       </div>
@@ -193,7 +192,10 @@ require_once __DIR__ . '/../includes/header.php';
   <?php endforeach; ?>
 </div>
 
-<?php else: // THEMES tab ?>
+  </sl-tab-panel>
+
+  <!-- THEMES PANEL -->
+  <sl-tab-panel name="themes">
 <div class="row g-3">
   <?php foreach ($marketplaceThemes as $theme):
     $isInstalled = isset($availableThemes[$theme['slug']]) || ($theme['included'] ?? false);
@@ -228,29 +230,27 @@ require_once __DIR__ . '/../includes/header.php';
       
       <div class="d-flex gap-2 mt-auto pt-3" style="border-top:1px solid var(--border);">
         <?php if ($isActive): ?>
-        <button class="btn btn-sm btn-success flex-fill" disabled><i class="bi bi-check-circle me-1"></i> Actief Thema</button>
+        <sl-button variant="success" size="small" style="flex:1;" disabled>
+          <i slot="prefix" class="bi bi-check-circle"></i> Actief Thema
+        </sl-button>
         <?php elseif ($isInstalled): ?>
-        <button class="btn btn-sm btn-primary flex-fill" onclick="activateTheme('<?= e($theme['slug']) ?>', this)">
-          <i class="bi bi-palette me-1"></i> Activeren
-        </button>
+        <sl-button variant="primary" size="small" style="flex:1;" onclick="activateTheme('<?= e($theme['slug']) ?>', this)">
+          <i slot="prefix" class="bi bi-palette"></i> Activeren
+        </sl-button>
         <?php elseif (!isset($theme['included'])): ?>
-        <button class="btn btn-sm btn-primary flex-fill" onclick="installItem('<?= e($theme['slug']) ?>', 'theme', '<?= e($theme['download_url'] ?? '') ?>', this)">
-          <i class="bi bi-download me-1"></i> Installeren
-        </button>
+        <sl-button variant="primary" size="small" style="flex:1;" onclick="installItem('<?= e($theme['slug']) ?>', 'theme', '<?= e($theme['download_url'] ?? '') ?>', this)">
+          <i slot="prefix" class="bi bi-download"></i> Installeren
+        </sl-button>
         <?php else: ?>
-        <button class="btn btn-sm btn-outline-secondary flex-fill" disabled>Standaard Thema</button>
+        <sl-button variant="neutral" size="small" outline style="flex:1;" disabled>Standaard Thema</sl-button>
         <?php endif; ?>
       </div>
     </div>
   </div>
   <?php endforeach; ?>
 </div>
-<?php endif; ?>
-
-<style>
-.filter-btn { background: white; border: 1.5px solid var(--border); border-radius: 8px; padding: .3rem .9rem; font-size: .8rem; font-weight: 600; cursor: pointer; transition: all .15s; color: var(--text-muted); }
-.filter-btn:hover, .filter-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
-</style>
+  </sl-tab-panel>
+</sl-tab-group>
 
 <script>
 const CSRF = '<?= csrf_token() ?>';
@@ -265,82 +265,70 @@ async function apiCall(data) {
 }
 
 async function installItem(slug, type, url, btn) {
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Installeren...';
+  btn.setAttribute('loading', '');
   const result = await apiCall({action: 'install', slug, type, download_url: url});
   if (result.success) {
     showToast('success', result.message);
     setTimeout(() => location.reload(), 1200);
   } else {
     showToast('error', result.message);
-    btn.disabled = false;
-    btn.innerHTML = '<i class="bi bi-download me-1"></i> Installeren';
+    btn.removeAttribute('loading');
   }
 }
 
 async function updateModule(slug, downloadUrl, btn) {
-  if (!confirm('Module bijwerken? De module wordt tijdelijk gedeactiveerd.')) return;
-  const original = btn.innerHTML;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Bijwerken...';
-  btn.disabled = true;
+  const confirmed = await cmsConfirm('Module bijwerken? De module wordt tijdelijk gedeactiveerd.', 'Bijwerken');
+  if (!confirmed) return;
+  btn.setAttribute('loading', '');
   const result = await apiCall({action: 'update', slug, download_url: downloadUrl});
   if (result.success) {
-    // Verwijder update badge en knop veilig
-    const card = btn.closest('.market-card') || btn.closest('[class*="col-"]') || btn.parentElement;
-    card.querySelectorAll('[data-update-badge], .btn-warning').forEach(el => el.remove());
-    showAlert(result.message, 'success');
+    const card = btn.closest('.market-card') || btn.parentElement;
+    card.querySelectorAll('[data-update-badge]').forEach(el => el.remove());
+    btn.remove();
+    showToast('success', result.message);
   } else {
-    btn.innerHTML = original;
-    btn.disabled = false;
-    showAlert(result.message, 'danger');
+    btn.removeAttribute('loading');
+    showToast('error', result.message);
   }
 }
 
 async function toggleModule(slug, btn) {
+  btn.setAttribute('loading', '');
   const result = await apiCall({action: 'toggle', slug});
   if (result.success) {
     showToast('success', result.status === 'active' ? 'Module geactiveerd.' : 'Module gedeactiveerd.');
     setTimeout(() => location.reload(), 800);
-  }
+  } else { btn.removeAttribute('loading'); }
 }
 
 async function uninstallModule(slug, btn) {
-  if (!confirm('Module verwijderen? Dit kan niet ongedaan gemaakt worden.')) return;
+  const confirmed = await cmsConfirm('Module verwijderen? Dit kan niet ongedaan gemaakt worden.', 'Verwijderen');
+  if (!confirmed) return;
+  btn.setAttribute('loading', '');
   const result = await apiCall({action: 'uninstall', slug});
   if (result.success) { showToast('success', result.message); setTimeout(() => location.reload(), 800); }
+  else { btn.removeAttribute('loading'); showToast('error', result.message); }
 }
 
 async function updateTheme(slug, downloadUrl, btn) {
-  if (!confirm('Thema bijwerken? Het actieve thema blijft actief.')) return;
-  const original = btn.innerHTML;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Bijwerken...';
-  btn.disabled = true;
+  const confirmed = await cmsConfirm('Thema bijwerken? Het actieve thema blijft actief.', 'Bijwerken');
+  if (!confirmed) return;
+  btn.setAttribute('loading', '');
   const result = await apiCall({action: 'update_theme', slug, download_url: downloadUrl});
   if (result.success) {
     btn.remove();
-    showAlert(result.message, 'success');
+    showToast('success', result.message);
   } else {
-    btn.innerHTML = original;
-    btn.disabled = false;
-    showAlert(result.message, 'danger');
+    btn.removeAttribute('loading');
+    showToast('error', result.message);
   }
 }
 
 async function activateTheme(slug, btn) {
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+  btn.setAttribute('loading', '');
   const result = await apiCall({action: 'activate_theme', slug});
   if (result.success) { showToast('success', result.message); setTimeout(() => location.reload(), 800); }
-  else { showToast('error', result.message); btn.disabled = false; btn.innerHTML = '<i class="bi bi-palette me-1"></i> Activeren'; }
-}
-
-function showToast(type, msg) {
-  const t = document.createElement('div');
-  t.className = 'alert alert-' + (type === 'success' ? 'success' : 'danger');
-  t.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;box-shadow:0 8px 30px rgba(0,0,0,.2);border-radius:12px;padding:.75rem 1.25rem;min-width:280px;animation:slideIn .2s ease;';
-  t.innerHTML = '<i class="bi bi-' + (type === 'success' ? 'check-circle' : 'exclamation-circle') + ' me-2"></i>' + msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 3000);
+  else { showToast('error', result.message); btn.removeAttribute('loading'); }
 }
 
 // Search & filter
@@ -349,7 +337,7 @@ const items = document.querySelectorAll('.market-item');
 let activeFilter = 'all';
 
 function filterItems() {
-  const q = searchInput?.value.toLowerCase() || '';
+  const q = (searchInput?.value || '').toLowerCase();
   items.forEach(item => {
     const matchCat = activeFilter === 'all' || item.dataset.cat === activeFilter;
     const matchSearch = !q || item.dataset.name.includes(q);
@@ -357,11 +345,15 @@ function filterItems() {
   });
 }
 
+searchInput?.addEventListener('sl-input', filterItems);
 searchInput?.addEventListener('input', filterItems);
+
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', function() {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    this.classList.add('active');
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.variant = 'neutral'; b.outline = true;
+    });
+    this.variant = 'primary'; this.outline = false;
     activeFilter = this.dataset.cat;
     filterItems();
   });

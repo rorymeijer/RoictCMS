@@ -19,7 +19,9 @@ require_once __DIR__ . '/../includes/header.php';
     <h1 style="font-size:1.4rem;font-weight:800;margin:0;">Gebruikers</h1>
     <p class="text-muted mb-0" style="font-size:.85rem;"><?= count($users) ?> gebruikers</p>
   </div>
-  <a href="add.php" class="quick-add-btn"><i class="bi bi-plus-lg"></i> Nieuwe Gebruiker</a>
+  <sl-button href="add.php" variant="primary">
+    <i slot="prefix" class="bi bi-plus-lg"></i> Nieuwe Gebruiker
+  </sl-button>
 </div>
 
 <div class="cms-card">
@@ -27,6 +29,7 @@ require_once __DIR__ . '/../includes/header.php';
     <thead><tr><th>Gebruiker</th><th>Email</th><th>Rol</th><th>Laatste login</th><th>Status</th><th>Acties</th></tr></thead>
     <tbody>
     <?php foreach ($users as $u): ?>
+    <?php $roles = ['admin' => ['primary','Admin'], 'editor' => ['success','Redacteur'], 'author' => ['neutral','Auteur'], 'lid' => ['neutral','Lid']]; $r = $roles[$u['role']] ?? ['neutral', $u['role']]; ?>
     <tr>
       <td>
         <div class="d-flex align-items-center gap-3">
@@ -38,17 +41,19 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
       </td>
       <td class="text-muted"><?= e($u['email']) ?></td>
-      <td>
-        <?php $roles = ['admin' => ['primary','Admin'], 'editor' => ['success','Redacteur'], 'author' => ['secondary','Auteur']]; $r = $roles[$u['role']] ?? ['secondary',$u['role']]; ?>
-        <span class="badge bg-<?= $r[0] ?>"><?= $r[1] ?></span>
-      </td>
+      <td><sl-badge variant="<?= $r[0] ?>" pill><?= $r[1] ?></sl-badge></td>
       <td class="text-muted"><?= $u['last_login'] ? date('d M Y H:i', strtotime($u['last_login'])) : 'Nooit' ?></td>
-      <td><span class="badge-status badge-<?= $u['status'] ?>"><?= $u['status'] === 'active' ? 'Actief' : 'Inactief' ?></span></td>
+      <td><sl-badge variant="<?= $u['status'] === 'active' ? 'primary' : 'danger' ?>" pill><?= $u['status'] === 'active' ? 'Actief' : 'Inactief' ?></sl-badge></td>
       <td>
         <div class="action-btns">
-          <a href="edit.php?id=<?= $u['id'] ?>" class="btn btn-sm btn-outline-secondary btn-icon"><i class="bi bi-pencil"></i></a>
+          <sl-button href="edit.php?id=<?= $u['id'] ?>" size="small" variant="neutral" outline>
+            <i class="bi bi-pencil"></i>
+          </sl-button>
           <?php if ($u['id'] !== (int)$_SESSION['user_id']): ?>
-          <a href="?action=delete&id=<?= $u['id'] ?>&csrf_token=<?= csrf_token() ?>" class="btn btn-sm btn-outline-danger btn-icon" data-confirm="Gebruiker '<?= e(addslashes($u['username'])) ?>' verwijderen?"><i class="bi bi-trash"></i></a>
+          <sl-button href="?action=delete&id=<?= $u['id'] ?>&csrf_token=<?= csrf_token() ?>" size="small" variant="danger" outline
+            data-confirm="Gebruiker '<?= e(addslashes($u['username'])) ?>' verwijderen?">
+            <i class="bi bi-trash"></i>
+          </sl-button>
           <?php endif; ?>
         </div>
       </td>

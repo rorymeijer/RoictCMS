@@ -53,7 +53,9 @@ require_once __DIR__ . '/../includes/header.php';
     <h1 style="font-size:1.4rem;font-weight:800;margin:0;">Thema's</h1>
     <p class="text-muted mb-0" style="font-size:.85rem;">Geïnstalleerde thema's — <?= count($themes) ?> beschikbaar</p>
   </div>
-  <a href="<?= BASE_URL ?>/admin/marketplace/?tab=themes" class="quick-add-btn"><i class="bi bi-shop me-1"></i> Meer thema's</a>
+  <sl-button href="<?= BASE_URL ?>/admin/marketplace/?tab=themes" variant="primary">
+    <i slot="prefix" class="bi bi-shop"></i> Meer thema's
+  </sl-button>
 </div>
 
 <div class="row g-3">
@@ -99,33 +101,44 @@ require_once __DIR__ . '/../includes/header.php';
         <form method="POST" class="flex-grow-1">
           <?= csrf_field() ?>
           <input type="hidden" name="activate" value="<?= e($theme['slug']) ?>">
-          <button type="submit" class="btn btn-primary btn-sm w-100"><i class="bi bi-palette me-1"></i> Activeren</button>
+          <sl-button type="submit" variant="primary" size="small" class="w-100">
+            <i slot="prefix" class="bi bi-palette"></i> Activeren
+          </sl-button>
         </form>
         <?php if ($hasUpdate): ?>
-        <button class="btn btn-warning btn-sm" onclick="updateTheme('<?= e($theme['slug']) ?>', '<?= e($updateUrl) ?>', this)" title="Bijwerken naar v<?= e($remoteVer) ?>">
+        <sl-button size="small" variant="warning" onclick="updateTheme('<?= e($theme['slug']) ?>', '<?= e($updateUrl) ?>', this)" title="Bijwerken naar v<?= e($remoteVer) ?>">
           <i class="bi bi-arrow-up-circle"></i>
-        </button>
+        </sl-button>
         <?php endif; ?>
         <?php if (!$isLocked): ?>
-        <form method="POST" onsubmit="return confirm('Weet je zeker dat je het thema \"<?= e($theme['name'] ?? $theme['slug']) ?>\" wilt verwijderen?');">
+        <form method="POST" id="del-<?= e($theme['slug']) ?>">
           <?= csrf_field() ?>
           <input type="hidden" name="delete" value="<?= e($theme['slug']) ?>">
-          <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
+          <sl-button size="small" variant="danger" type="button"
+            onclick="deleteTheme('<?= e(addslashes($theme['name'] ?? $theme['slug'])) ?>', '<?= e($theme['slug']) ?>')">
+            <i class="bi bi-trash"></i>
+          </sl-button>
         </form>
         <?php else: ?>
-        <button class="btn btn-secondary btn-sm" disabled title="Dit thema is beveiligd en kan niet worden verwijderd."><i class="bi bi-lock"></i></button>
+        <sl-button size="small" variant="neutral" disabled title="Dit thema is beveiligd en kan niet worden verwijderd.">
+          <i class="bi bi-lock"></i>
+        </sl-button>
         <?php endif; ?>
       </div>
       <?php else: ?>
       <div class="d-flex gap-2">
-        <button class="btn btn-success btn-sm flex-grow-1" disabled><i class="bi bi-check-circle me-1"></i> Huidig thema</button>
+        <sl-button variant="success" size="small" class="flex-grow-1" disabled>
+          <i slot="prefix" class="bi bi-check-circle"></i> Huidig thema
+        </sl-button>
         <?php if ($hasUpdate): ?>
-        <button class="btn btn-warning btn-sm" onclick="updateTheme('<?= e($theme['slug']) ?>', '<?= e($updateUrl) ?>', this)" title="Bijwerken naar v<?= e($remoteVer) ?>">
+        <sl-button size="small" variant="warning" onclick="updateTheme('<?= e($theme['slug']) ?>', '<?= e($updateUrl) ?>', this)" title="Bijwerken naar v<?= e($remoteVer) ?>">
           <i class="bi bi-arrow-up-circle"></i>
-        </button>
+        </sl-button>
         <?php endif; ?>
         <?php if ($isLocked): ?>
-        <button class="btn btn-secondary btn-sm" disabled title="Dit thema is beveiligd en kan alleen via het CMS worden bijgewerkt."><i class="bi bi-lock"></i></button>
+        <sl-button size="small" variant="neutral" disabled title="Dit thema is beveiligd en kan alleen via het CMS worden bijgewerkt.">
+          <i class="bi bi-lock"></i>
+        </sl-button>
         <?php endif; ?>
       </div>
       <?php endif; ?>
@@ -138,10 +151,9 @@ require_once __DIR__ . '/../includes/header.php';
 <script>
 const CSRF_T = '<?= csrf_token() ?>';
 async function updateTheme(slug, downloadUrl, btn) {
-  if (!confirm('Thema bijwerken naar de nieuwste versie?')) return;
-  const orig = btn.innerHTML;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-  btn.disabled = true;
+  const confirmed = await cmsConfirm('Thema bijwerken naar de nieuwste versie?', 'Bijwerken');
+  if (!confirmed) return;
+  btn.setAttribute('loading', '');
   const fd = new FormData();
   fd.append('ajax', '1'); fd.append('csrf_token', CSRF_T);
   fd.append('action', 'update_theme'); fd.append('slug', slug);
@@ -150,16 +162,17 @@ async function updateTheme(slug, downloadUrl, btn) {
     const r = await (await fetch('', {method:'POST', body:fd})).json();
     if (r.success) {
       btn.remove();
-      const t = document.createElement('div');
-      t.className = 'alert alert-success';
-      t.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;box-shadow:0 8px 30px rgba(0,0,0,.2);border-radius:12px;padding:.75rem 1.25rem;min-width:280px;';
-      t.innerHTML = '<i class="bi bi-check-circle me-2"></i>' + r.message;
-      document.body.appendChild(t);
-      setTimeout(() => { t.remove(); location.reload(); }, 2500);
+      showToast('success', r.message);
+      setTimeout(() => location.reload(), 2500);
     } else {
-      btn.innerHTML = orig; btn.disabled = false; alert(r.message);
+      btn.removeAttribute('loading');
+      showToast('error', r.message);
     }
-  } catch(e) { btn.innerHTML = orig; btn.disabled = false; }
+  } catch(e) { btn.removeAttribute('loading'); }
+}
+async function deleteTheme(name, slug) {
+  const confirmed = await cmsConfirm('Thema "' + name + '" verwijderen?', 'Verwijderen');
+  if (confirmed) document.getElementById('del-' + slug).submit();
 }
 </script>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

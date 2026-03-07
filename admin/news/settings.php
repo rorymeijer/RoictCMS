@@ -32,9 +32,9 @@ require_once ADMIN_PATH . '/includes/header.php';
     <h1 style="font-size:1.4rem;font-weight:800;margin:0;">Nieuwspagina Instellingen</h1>
     <p class="text-muted mb-0" style="font-size:.85rem;">Naam en zichtbaarheid van de nieuwspagina</p>
   </div>
-  <a href="<?= BASE_URL ?>/admin/news/" class="btn btn-outline-secondary btn-sm">
-    <i class="bi bi-arrow-left"></i> Terug naar berichten
-  </a>
+  <sl-button href="<?= BASE_URL ?>/admin/news/" variant="neutral" outline size="small">
+    <i slot="prefix" class="bi bi-arrow-left"></i> Terug naar berichten
+  </sl-button>
 </div>
 
 <?= renderFlash() ?>
@@ -45,31 +45,19 @@ require_once ADMIN_PATH . '/includes/header.php';
     <form method="POST">
       <?= csrf_field() ?>
 
-      <div class="mb-4">
-        <label for="news_page_title" class="form-label fw-semibold">Naam van de nieuwspagina</label>
-        <input type="text" id="news_page_title" name="news_page_title" class="form-control"
-               value="<?= e($newsTitle) ?>" placeholder="Nieuws" required>
-        <div class="form-text">Deze naam verschijnt in de navigatie, paginatitel en de pagina zelf.</div>
-      </div>
+      <sl-input class="mb-4" label="Naam van de nieuwspagina" name="news_page_title"
+        value="<?= e($newsTitle) ?>" placeholder="Nieuws" required
+        help-text="Deze naam verschijnt in de navigatie, paginatitel en de pagina zelf."></sl-input>
 
-      <div class="mb-4">
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch"
-                 id="news_page_enabled" name="news_page_enabled" value="1"
-                 <?= $newsEnabled === '1' ? 'checked' : '' ?>>
-          <label class="form-check-label fw-semibold" for="news_page_enabled">
-            Nieuwspagina inschakelen
-          </label>
-        </div>
-        <div class="form-text mt-1">
-          Wanneer uitgeschakeld is de nieuwspagina (<code>/news</code>) niet bereikbaar voor bezoekers
-          en wordt de link verborgen in de navigatie en footer.
-        </div>
-      </div>
+      <sl-switch class="mb-4" name="news_page_enabled" value="1"
+        <?= $newsEnabled === '1' ? 'checked' : '' ?>>
+        Nieuwspagina inschakelen
+        <small slot="help-text">Wanneer uitgeschakeld is de nieuwspagina (<code>/news</code>) niet bereikbaar voor bezoekers.</small>
+      </sl-switch>
 
-      <button type="submit" class="btn btn-primary">
-        <i class="bi bi-check-lg"></i> Opslaan
-      </button>
+      <sl-button type="submit" variant="primary">
+        <i slot="prefix" class="bi bi-check-lg"></i> Opslaan
+      </sl-button>
     </form>
   </div>
 </div>

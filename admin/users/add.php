@@ -38,41 +38,49 @@ require_once __DIR__ . '/../includes/header.php';
 ?>
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h1 style="font-size:1.4rem;font-weight:800;margin:0;"><?= $pageTitle ?></h1>
-  <a href="index.php" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Terug</a>
+  <sl-button href="index.php" variant="neutral" outline size="small">
+    <i slot="prefix" class="bi bi-arrow-left"></i> Terug
+  </sl-button>
 </div>
-<?php if (isset($error)): ?><div class="alert alert-danger"><?= e($error) ?></div><?php endif; ?>
+<?php if (isset($error)): ?>
+<sl-alert variant="danger" open class="mb-4">
+  <sl-icon slot="icon" name="exclamation-circle"></sl-icon><?= e($error) ?>
+</sl-alert>
+<?php endif; ?>
 <div class="row justify-content-center"><div class="col-md-7">
 <div class="cms-card">
   <div class="cms-card-header"><span class="cms-card-title">Gebruikersgegevens</span></div>
   <div class="cms-card-body">
     <form method="POST">
       <?= csrf_field() ?>
-      <div class="mb-3"><label class="form-label">Gebruikersnaam *</label><input type="text" class="form-control" name="username" value="<?= e($user['username'] ?? '') ?>" required></div>
-      <div class="mb-3"><label class="form-label">Email *</label><input type="email" class="form-control" name="email" value="<?= e($user['email'] ?? '') ?>" required></div>
-      <div class="mb-3">
-        <label class="form-label">Wachtwoord <?= $isEdit ? '(laat leeg om niet te wijzigen)' : '*' ?></label>
-        <input type="password" class="form-control" name="password" <?= !$isEdit ? 'required' : '' ?> minlength="8">
-      </div>
+      <sl-input class="mb-3" label="Gebruikersnaam *" type="text" name="username"
+        value="<?= e($user['username'] ?? '') ?>" required></sl-input>
+      <sl-input class="mb-3" label="Email *" type="email" name="email"
+        value="<?= e($user['email'] ?? '') ?>" required></sl-input>
+      <sl-input class="mb-3" label="Wachtwoord <?= $isEdit ? '(laat leeg om niet te wijzigen)' : '*' ?>"
+        type="password" name="password" <?= !$isEdit ? 'required' : '' ?> minlength="8"
+        password-toggle></sl-input>
       <div class="row g-3 mb-4">
         <div class="col-md-6">
-          <label class="form-label">Rol</label>
-          <select class="form-select" name="role">
-            <option value="lid" <?= ($user['role'] ?? '') === 'lid' ? 'selected' : '' ?>>Lid (alleen frontend)</option>
-            <option value="author" <?= ($user['role'] ?? 'author') === 'author' ? 'selected' : '' ?>>Auteur</option>
-            <option value="editor" <?= ($user['role'] ?? '') === 'editor' ? 'selected' : '' ?>>Redacteur</option>
-            <option value="admin" <?= ($user['role'] ?? '') === 'admin' ? 'selected' : '' ?>>Beheerder</option>
-          </select>
+          <sl-select label="Rol" name="role" value="<?= e($user['role'] ?? 'author') ?>">
+            <sl-option value="lid">Lid (alleen frontend)</sl-option>
+            <sl-option value="author">Auteur</sl-option>
+            <sl-option value="editor">Redacteur</sl-option>
+            <sl-option value="admin">Beheerder</sl-option>
+          </sl-select>
         </div>
         <div class="col-md-6">
-          <label class="form-label">Status</label>
-          <select class="form-select" name="status">
-            <option value="active" <?= ($user['status'] ?? 'active') === 'active' ? 'selected' : '' ?>>Actief</option>
-            <option value="inactive" <?= ($user['status'] ?? '') === 'inactive' ? 'selected' : '' ?>>Inactief</option>
-          </select>
+          <sl-select label="Status" name="status" value="<?= e($user['status'] ?? 'active') ?>">
+            <sl-option value="active">Actief</sl-option>
+            <sl-option value="inactive">Inactief</sl-option>
+          </sl-select>
         </div>
       </div>
       <?php do_action('admin_user_form_fields', $user ?? null, $id); ?>
-      <button type="submit" class="btn btn-primary w-100"><i class="bi bi-check-lg me-1"></i> <?= $isEdit ? 'Wijzigingen opslaan' : 'Gebruiker aanmaken' ?></button>
+      <sl-button type="submit" variant="primary" class="w-100">
+        <i slot="prefix" class="bi bi-check-lg"></i>
+        <?= $isEdit ? 'Wijzigingen opslaan' : 'Gebruiker aanmaken' ?>
+      </sl-button>
     </form>
   </div>
 </div>
