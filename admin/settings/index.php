@@ -51,10 +51,14 @@ require_once __DIR__ . '/../includes/header.php';
       <div class="cms-card mb-4">
         <div class="cms-card-header"><span class="cms-card-title">Algemene Instellingen</span></div>
         <div class="cms-card-body">
-          <div class="mb-3"><label class="form-label">Sitenaam *</label><input type="text" class="form-control" name="site_name" value="<?= e(Settings::get('site_name', '')) ?>" required></div>
-          <div class="mb-3"><label class="form-label">Tagline</label><input type="text" class="form-control" name="site_tagline" value="<?= e(Settings::get('site_tagline', '')) ?>"></div>
-          <div class="mb-3"><label class="form-label">Contact Email</label><input type="email" class="form-control" name="site_email" value="<?= e(Settings::get('site_email', '')) ?>"></div>
-          <div class="mb-3"><label class="form-label">Footer Tekst</label><input type="text" class="form-control" name="footer_text" value="<?= e(Settings::get('footer_text', '')) ?>"></div>
+          <sl-input class="mb-3" label="Sitenaam *" name="site_name"
+            value="<?= e(Settings::get('site_name', '')) ?>" required></sl-input>
+          <sl-input class="mb-3" label="Tagline" name="site_tagline"
+            value="<?= e(Settings::get('site_tagline', '')) ?>"></sl-input>
+          <sl-input class="mb-3" label="Contact Email" type="email" name="site_email"
+            value="<?= e(Settings::get('site_email', '')) ?>"></sl-input>
+          <sl-input label="Footer Tekst" name="footer_text"
+            value="<?= e(Settings::get('footer_text', '')) ?>"></sl-input>
         </div>
       </div>
       <div class="cms-card">
@@ -62,28 +66,26 @@ require_once __DIR__ . '/../includes/header.php';
         <div class="cms-card-body">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Berichten per pagina</label>
-              <input type="number" class="form-control" name="posts_per_page" value="<?= e(Settings::get('posts_per_page', '10')) ?>" min="1" max="100">
+              <sl-input label="Berichten per pagina" type="number" name="posts_per_page"
+                value="<?= e(Settings::get('posts_per_page', '10')) ?>" min="1" max="100"></sl-input>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Datumformaat</label>
-              <input type="text" class="form-control" name="date_format" value="<?= e(Settings::get('date_format', 'd M Y')) ?>">
+              <sl-input label="Datumformaat" name="date_format"
+                value="<?= e(Settings::get('date_format', 'd M Y')) ?>"></sl-input>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Tijdzone</label>
-              <select class="form-select" name="timezone">
+              <sl-select label="Tijdzone" name="timezone" value="<?= e(Settings::get('timezone', 'Europe/Amsterdam')) ?>">
                 <?php foreach (['Europe/Amsterdam','Europe/London','Europe/Berlin','America/New_York','UTC'] as $tz): ?>
-                <option value="<?= $tz ?>" <?= Settings::get('timezone', '') === $tz ? 'selected' : '' ?>><?= $tz ?></option>
+                <sl-option value="<?= $tz ?>"><?= $tz ?></sl-option>
                 <?php endforeach; ?>
-              </select>
+              </sl-select>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Beheertaal</label>
-              <select class="form-select" name="admin_language">
+              <sl-select label="Beheertaal" name="admin_language" value="<?= e(admin_lang()) ?>">
                 <?php foreach (admin_available_languages() as $code => $label): ?>
-                <option value="<?= e($code) ?>" <?= admin_lang() === $code ? 'selected' : '' ?>><?= e($label) ?></option>
+                <sl-option value="<?= e($code) ?>"><?= e($label) ?></sl-option>
                 <?php endforeach; ?>
-              </select>
+              </sl-select>
             </div>
           </div>
         </div>
@@ -93,49 +95,56 @@ require_once __DIR__ . '/../includes/header.php';
       <div class="cms-card mb-3">
         <div class="cms-card-header"><span class="cms-card-title">Homepage instelling</span></div>
         <div class="cms-card-body">
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Homepage type</label>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="homepage_type" id="hp_default" value="default"
-                <?= Settings::get('homepage_type', 'default') !== 'page' ? 'checked' : '' ?>>
-              <label class="form-check-label" for="hp_default">Standaard homepage</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="homepage_type" id="hp_page" value="page"
-                <?= Settings::get('homepage_type', 'default') === 'page' ? 'checked' : '' ?>>
-              <label class="form-check-label" for="hp_page">Statische pagina</label>
-            </div>
-          </div>
+          <sl-radio-group class="mb-3" label="Homepage type" name="homepage_type"
+            value="<?= e(Settings::get('homepage_type', 'default')) ?>" id="hp-type-group">
+            <sl-radio value="default">Standaard homepage</sl-radio>
+            <sl-radio value="page">Statische pagina</sl-radio>
+          </sl-radio-group>
           <div id="homepage-page-select" <?= Settings::get('homepage_type', 'default') !== 'page' ? 'style="display:none"' : '' ?>>
-            <label class="form-label">Kies pagina</label>
-            <select class="form-select" name="homepage_page_id">
-              <option value="0">— Selecteer een pagina —</option>
+            <sl-select label="Kies pagina" name="homepage_page_id"
+              value="<?= e((int)Settings::get('homepage_page_id', 0)) ?>" placeholder="— Selecteer een pagina —">
+              <sl-option value="0">— Selecteer een pagina —</sl-option>
               <?php foreach ($publishedPages as $p): ?>
-              <option value="<?= (int)$p['id'] ?>" <?= (int)Settings::get('homepage_page_id', 0) === (int)$p['id'] ? 'selected' : '' ?>>
-                <?= e($p['title']) ?>
-              </option>
+              <sl-option value="<?= (int)$p['id'] ?>"><?= e($p['title']) ?></sl-option>
               <?php endforeach; ?>
-            </select>
+            </sl-select>
             <?php if (empty($publishedPages)): ?>
             <small class="text-muted">Geen gepubliceerde pagina's beschikbaar.</small>
             <?php endif; ?>
           </div>
           <script>
-            (function() {
-              var radios = document.querySelectorAll('input[name="homepage_type"]');
-              var sel = document.getElementById('homepage-page-select');
-              radios.forEach(function(r) {
-                r.addEventListener('change', function() {
-                  sel.style.display = (this.value === 'page') ? '' : 'none';
-                });
-              });
-            })();
+          document.getElementById('hp-type-group').addEventListener('sl-change', function() {
+            document.getElementById('homepage-page-select').style.display =
+              (this.value === 'page') ? '' : 'none';
+          });
           </script>
         </div>
       </div>
       <div class="cms-card mb-3">
         <div class="cms-card-header"><span class="cms-card-title">Marketplace</span></div>
         <div class="cms-card-body">
+          <p class="text-muted mb-3" style="font-size:.85rem;">Kies welke modulestatus zichtbaar is in de marketplace.</p>
+          <sl-switch class="mb-2" name="marketplace_show_released" value="1"
+            <?= Settings::get('marketplace_show_released', '1') !== '0' ? 'checked' : '' ?>>
+            Released <sl-badge variant="success" style="margin-left:.4rem;">Stabiel</sl-badge>
+          </sl-switch>
+          <sl-switch class="mb-2" name="marketplace_show_beta" value="1"
+            <?= Settings::get('marketplace_show_beta', '0') == '1' ? 'checked' : '' ?>>
+            Beta <sl-badge variant="warning" style="margin-left:.4rem;">Beta</sl-badge>
+          </sl-switch>
+          <sl-switch class="mb-2" name="marketplace_show_alpha" value="1"
+            <?= Settings::get('marketplace_show_alpha', '0') == '1' ? 'checked' : '' ?>>
+            Alpha <sl-badge variant="danger" style="margin-left:.4rem;">Alpha</sl-badge>
+          </sl-switch>
+          <sl-switch class="mb-3" name="marketplace_manual_upload" value="1"
+            <?= Settings::get('marketplace_manual_upload', '0') == '1' ? 'checked' : '' ?>>
+            Handmatige upload <sl-badge variant="primary" style="margin-left:.4rem;">ZIP</sl-badge>
+          </sl-switch>
+          <div>
+            <sl-button type="submit" name="refresh_marketplace_cache" value="1" variant="neutral" outline size="small">
+              <i slot="prefix" class="bi bi-arrow-clockwise"></i> Cache flushen & ZIP opnieuw ophalen
+            </sl-button>
+            <div class="text-muted mt-1" style="font-size:.78rem;">Forceert direct een nieuwe controle van ZIP-bestanden.</div>
           <p class="text-muted mb-2" style="font-size:.85rem;">Kies welke modulestatus zichtbaar is in de marketplace.</p>
           <div class="form-check form-switch mb-2">
             <input class="form-check-input" type="checkbox" name="marketplace_show_released" value="1" id="mkt_released" <?= Settings::get('marketplace_show_released', '1') !== '0' ? 'checked' : '' ?>>
@@ -168,15 +177,14 @@ require_once __DIR__ . '/../includes/header.php';
       <div class="cms-card mb-3">
         <div class="cms-card-header"><span class="cms-card-title">Site Status</span></div>
         <div class="cms-card-body">
-          <div class="form-check form-switch mb-3">
-            <input class="form-check-input" type="checkbox" name="maintenance_mode" value="1" id="maint" <?= Settings::get('maintenance_mode', '') == '1' ? 'checked' : '' ?>>
-            <label class="form-check-label fw-semibold" for="maint">Onderhoudsmodus</label>
-          </div>
-          <div class="mb-2">
-            <label class="form-label fw-semibold" for="maintenance_message">Onderhoudsbericht</label>
-            <textarea class="form-control" name="maintenance_message" id="maintenance_message" rows="4" placeholder="Bijv. We zijn even bezig. Kom later terug!"><?= e(Settings::get('maintenance_message', '')) ?></textarea>
-            <small class="text-muted">Dit bericht wordt getoond aan bezoekers tijdens de onderhoudsmodus.</small>
-          </div>
+          <sl-switch class="mb-3" name="maintenance_mode" value="1"
+            <?= Settings::get('maintenance_mode', '') == '1' ? 'checked' : '' ?>>
+            <strong>Onderhoudsmodus</strong>
+          </sl-switch>
+          <sl-textarea label="Onderhoudsbericht" name="maintenance_message" rows="4"
+            placeholder="Bijv. We zijn even bezig. Kom later terug!"
+            value="<?= e(Settings::get('maintenance_message', '')) ?>"
+            help-text="Dit bericht wordt getoond aan bezoekers tijdens de onderhoudsmodus."></sl-textarea>
         </div>
       </div>
       <div class="cms-card mb-3">
@@ -193,7 +201,9 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
   </div>
   <div class="mt-3">
-    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i> Instellingen opslaan</button>
+    <sl-button type="submit" variant="primary">
+      <i slot="prefix" class="bi bi-check-lg"></i> Instellingen opslaan
+    </sl-button>
   </div>
 </form>
 <script>

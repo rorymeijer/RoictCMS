@@ -76,13 +76,14 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <?php if (!empty($errors)): ?>
-<div class="alert alert-danger">
+<sl-alert variant="danger" open class="mb-4">
+  <sl-icon slot="icon" name="exclamation-circle"></sl-icon>
   <ul class="mb-0 ps-3">
     <?php foreach ($errors as $err): ?>
     <li><?= e($err) ?></li>
     <?php endforeach; ?>
   </ul>
-</div>
+</sl-alert>
 <?php endif; ?>
 
 <div class="row g-4">
@@ -92,27 +93,19 @@ require_once __DIR__ . '/includes/header.php';
       <div class="cms-card-body">
         <form method="POST">
           <?= csrf_field() ?>
-          <div class="mb-3">
-            <label class="form-label">Gebruikersnaam *</label>
-            <input type="text" class="form-control" name="username" value="<?= e($currentUser['username'] ?? '') ?>" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">E-mailadres *</label>
-            <input type="email" class="form-control" name="email" value="<?= e($currentUser['email'] ?? '') ?>" required>
-          </div>
+          <sl-input class="mb-3" label="Gebruikersnaam *" type="text" name="username"
+            value="<?= e($currentUser['username'] ?? '') ?>" required></sl-input>
+          <sl-input class="mb-3" label="E-mailadres *" type="email" name="email"
+            value="<?= e($currentUser['email'] ?? '') ?>" required></sl-input>
           <hr class="my-4">
           <p class="fw-semibold mb-3 text-muted" style="font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;">Wachtwoord wijzigen</p>
-          <div class="mb-3">
-            <label class="form-label">Nieuw wachtwoord <span class="text-muted fw-normal">(laat leeg om niet te wijzigen)</span></label>
-            <input type="password" class="form-control" name="password" minlength="8" autocomplete="new-password">
-          </div>
-          <div class="mb-4">
-            <label class="form-label">Wachtwoord bevestigen</label>
-            <input type="password" class="form-control" name="password_confirm" minlength="8" autocomplete="new-password">
-          </div>
-          <button type="submit" class="btn btn-primary w-100">
-            <i class="bi bi-check-lg me-1"></i> Wijzigingen opslaan
-          </button>
+          <sl-input class="mb-3" label="Nieuw wachtwoord (laat leeg om niet te wijzigen)"
+            type="password" name="password" minlength="8" autocomplete="new-password" password-toggle></sl-input>
+          <sl-input class="mb-4" label="Wachtwoord bevestigen"
+            type="password" name="password_confirm" minlength="8" autocomplete="new-password" password-toggle></sl-input>
+          <sl-button type="submit" variant="primary" class="w-100">
+            <i slot="prefix" class="bi bi-check-lg"></i> Wijzigingen opslaan
+          </sl-button>
         </form>
       </div>
     </div>

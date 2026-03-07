@@ -9,7 +9,36 @@
 <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.12.0/cdn/shoelace.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 <style>
+/* ── Shoelace token overrides ────────────────────────────────────────── */
 :root {
+  /* Primary colour palette (Tailwind blue) */
+  --sl-color-primary-50:  #eff6ff;
+  --sl-color-primary-100: #dbeafe;
+  --sl-color-primary-200: #bfdbfe;
+  --sl-color-primary-300: #93c5fd;
+  --sl-color-primary-400: #60a5fa;
+  --sl-color-primary-500: #3b82f6;
+  --sl-color-primary-600: #2563eb;
+  --sl-color-primary-700: #1d4ed8;
+  --sl-color-primary-800: #1e40af;
+  --sl-color-primary-900: #1e3a8a;
+  --sl-color-primary-950: #172554;
+
+  /* Fonts & radius */
+  --sl-font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --sl-border-radius-small:  6px;
+  --sl-border-radius-medium: 9px;
+  --sl-border-radius-large:  12px;
+
+  /* Input */
+  --sl-input-border-color:         #e2e8f0;
+  --sl-input-border-color-focus:   #2563eb;
+  --sl-focus-ring-width:           3px;
+  --sl-focus-ring-color:           rgba(37,99,235,.1);
+  --sl-input-border-radius-medium: 9px;
+  --sl-input-font-size-medium:     .88rem;
+
+  /* Layout vars */
   --sidebar-w: 260px;
   --topbar-h: 62px;
   --primary: #2563eb;
@@ -26,6 +55,25 @@
   --text: #0f172a;
   --text-muted: #64748b;
 }
+
+/* ── Shoelace part overrides ─────────────────────────────────────────── */
+sl-button::part(base)     { font-weight: 600; }
+sl-badge::part(base)      { font-weight: 700; font-size: .72rem; }
+sl-alert::part(base)      { border-radius: 12px; }
+sl-dialog::part(panel)    { border-radius: 16px; }
+
+/* Monospace textarea (content editor) */
+sl-textarea.monospace::part(textarea) {
+  font-family: monospace;
+  min-height: 400px;
+}
+
+/* Full-width sl-button helper */
+sl-button.w-100 { display: block; }
+sl-button.w-100::part(base) { width: 100%; justify-content: center; }
+
+/* Display block for form elements */
+sl-input, sl-select, sl-textarea, sl-switch, sl-radio-group { display: block; }
 *, *::before, *::after { box-sizing: border-box; }
 body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--surface); color: var(--text); min-height: 100vh; }
 
@@ -104,12 +152,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   cursor: pointer; transition: all .15s; color: var(--text-muted); text-decoration: none;
 }
 .topbar-icon-btn:hover { background: var(--surface); color: var(--primary); border-color: var(--primary); }
-.quick-add-btn {
-  background: var(--primary); color: white; border: none; padding: .45rem 1rem;
-  border-radius: 9px; font-size: .85rem; font-weight: 600; cursor: pointer;
-  display: flex; align-items: center; gap: .4rem; text-decoration: none; transition: background .15s;
-}
-.quick-add-btn:hover { background: var(--primary-dark); color: white; }
+/* quick-add-btn replaced by sl-button[variant="primary"] */
 
 /* Content */
 #content { padding: 1.75rem; flex: 1; }
@@ -147,14 +190,14 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 .cms-table tr:last-child td { border-bottom: none; }
 .cms-table tbody tr:hover { background: #f8fafc; }
 
-/* Badges */
+/* Legacy badge classes (kept for module compat) */
 .badge-status { padding: .25rem .65rem; border-radius: 999px; font-size: .72rem; font-weight: 700; }
 .badge-published { background: #dcfce7; color: #166534; }
 .badge-draft { background: #f1f5f9; color: #475569; }
 .badge-active { background: #dbeafe; color: #1e40af; }
 .badge-inactive { background: #fee2e2; color: #991b1b; }
 
-/* Forms */
+/* Legacy Bootstrap form overrides (kept for module compat) */
 .form-label { font-size: .85rem; font-weight: 600; color: var(--text); margin-bottom: .35rem; }
 .form-control, .form-select {
   border: 1.5px solid var(--border); border-radius: 9px; padding: .55rem .85rem;
@@ -164,7 +207,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.1); outline: none;
 }
 
-/* Buttons */
+/* Legacy Bootstrap button overrides (kept for module compat) */
 .btn-primary { background: var(--primary) !important; border-color: var(--primary) !important; border-radius: 9px !important; font-weight: 600 !important; }
 .btn-primary:hover { background: var(--primary-dark) !important; border-color: var(--primary-dark) !important; }
 .btn-outline-secondary { border-radius: 9px !important; }
@@ -172,7 +215,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 .btn-icon { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; padding: 0 !important; border-radius: 8px !important; }
 
 /* Action buttons row */
-.action-btns { display: flex; gap: .35rem; }
+.action-btns { display: flex; gap: .35rem; align-items: center; }
 
 /* Sidebar toggle for mobile */
 .sidebar-toggle-btn { display: none; }

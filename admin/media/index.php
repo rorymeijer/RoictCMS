@@ -108,8 +108,13 @@ require_once __DIR__ . '/../includes/header.php';
         <div style="font-size:.75rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><?= e($m['original_name']) ?></div>
         <div class="text-muted" style="font-size:.7rem;"><?= round($m['file_size'] / 1024) ?>KB</div>
         <div class="d-flex gap-1 mt-2">
-          <a href="<?= BASE_URL ?>/uploads/<?= e($m['filename']) ?>" target="_blank" class="btn btn-sm btn-outline-secondary btn-icon flex-fill"><i class="bi bi-eye"></i></a>
-          <a href="?action=delete&id=<?= $m['id'] ?>&csrf_token=<?= csrf_token() ?>" class="btn btn-sm btn-outline-danger btn-icon flex-fill" data-confirm="Verwijderen?"><i class="bi bi-trash"></i></a>
+          <sl-button href="<?= BASE_URL ?>/uploads/<?= e($m['filename']) ?>" target="_blank" size="small" variant="neutral" outline style="flex:1;">
+            <i class="bi bi-eye"></i>
+          </sl-button>
+          <sl-button href="?action=delete&id=<?= $m['id'] ?>&csrf_token=<?= csrf_token() ?>" size="small" variant="danger" outline style="flex:1;"
+            data-confirm="Bestand '<?= e(addslashes($m['original_name'])) ?>' verwijderen?">
+            <i class="bi bi-trash"></i>
+          </sl-button>
         </div>
       </div>
     </div>

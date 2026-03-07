@@ -27,23 +27,27 @@ require_once __DIR__ . '/../includes/header.php';
     <p class="text-muted mb-0" style="font-size:.85rem;"><?= $total ?> berichten totaal</p>
   </div>
   <div class="d-flex gap-2">
-    <a href="settings.php" class="btn btn-outline-secondary btn-sm"><i class="bi bi-gear"></i> Instellingen</a>
-    <a href="add.php" class="quick-add-btn"><i class="bi bi-plus-lg"></i> Nieuw Bericht</a>
+    <sl-button href="settings.php" variant="neutral" outline size="small">
+      <i slot="prefix" class="bi bi-gear"></i> Instellingen
+    </sl-button>
+    <sl-button href="add.php" variant="primary">
+      <i slot="prefix" class="bi bi-plus-lg"></i> Nieuw Bericht
+    </sl-button>
   </div>
 </div>
 
 <div class="cms-card">
   <div class="cms-card-header">
     <form method="GET" class="d-flex gap-2" style="flex:1;max-width:360px;">
-      <input type="search" class="form-control form-control-sm" name="q" value="<?= e($search) ?>" placeholder="Zoeken...">
-      <button class="btn btn-sm btn-outline-secondary">Zoek</button>
+      <sl-input type="search" name="q" value="<?= e($search) ?>" placeholder="Zoeken..." size="small" style="flex:1;"></sl-input>
+      <sl-button type="submit" size="small" variant="neutral" outline>Zoek</sl-button>
     </form>
   </div>
   <table class="cms-table">
     <thead>
       <tr>
         <th style="width:40px;"><input type="checkbox" class="form-check-input"></th>
-        <th>Titel</th><th>Categorie</th><th>Auteur</th><th>Status</th><th>Datum</th><th style="width:100px;">Acties</th>
+        <th>Titel</th><th>Categorie</th><th>Auteur</th><th>Status</th><th>Datum</th><th style="width:110px;">Acties</th>
       </tr>
     </thead>
     <tbody>
@@ -61,13 +65,24 @@ require_once __DIR__ . '/../includes/header.php';
         </td>
         <td class="text-muted"><?= e($p['category_name'] ?? '—') ?></td>
         <td class="text-muted"><?= e($p['username'] ?? '—') ?></td>
-        <td><span class="badge-status badge-<?= $p['status'] ?>"><?= $p['status'] === 'published' ? 'Gepubliceerd' : 'Concept' ?></span></td>
+        <td>
+          <sl-badge variant="<?= $p['status'] === 'published' ? 'success' : 'neutral' ?>" pill>
+            <?= $p['status'] === 'published' ? 'Gepubliceerd' : 'Concept' ?>
+          </sl-badge>
+        </td>
         <td class="text-muted"><?= date('d M Y', strtotime($p['created_at'])) ?></td>
         <td>
           <div class="action-btns">
-            <a href="edit.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline-secondary btn-icon"><i class="bi bi-pencil"></i></a>
-            <a href="<?= BASE_URL ?>/news/<?= e($p['slug']) ?>" target="_blank" class="btn btn-sm btn-outline-secondary btn-icon"><i class="bi bi-eye"></i></a>
-            <a href="?action=delete&id=<?= $p['id'] ?>&csrf_token=<?= csrf_token() ?>" class="btn btn-sm btn-outline-danger btn-icon" data-confirm="Bericht '<?= e(addslashes($p['title'])) ?>' verwijderen?"><i class="bi bi-trash"></i></a>
+            <sl-button href="edit.php?id=<?= $p['id'] ?>" size="small" variant="neutral" outline>
+              <i class="bi bi-pencil"></i>
+            </sl-button>
+            <sl-button href="<?= BASE_URL ?>/news/<?= e($p['slug']) ?>" target="_blank" size="small" variant="neutral" outline>
+              <i class="bi bi-eye"></i>
+            </sl-button>
+            <sl-button href="?action=delete&id=<?= $p['id'] ?>&csrf_token=<?= csrf_token() ?>" size="small" variant="danger" outline
+              data-confirm="Bericht '<?= e(addslashes($p['title'])) ?>' verwijderen?">
+              <i class="bi bi-trash"></i>
+            </sl-button>
           </div>
         </td>
       </tr>

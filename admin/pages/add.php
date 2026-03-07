@@ -39,11 +39,15 @@ require_once __DIR__ . '/../includes/header.php';
   <div>
     <h1 style="font-size:1.4rem;font-weight:800;margin:0;"><?= $pageTitle ?></h1>
   </div>
-  <a href="index.php" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Terug</a>
+  <sl-button href="index.php" variant="neutral" outline size="small">
+    <i slot="prefix" class="bi bi-arrow-left"></i> Terug
+  </sl-button>
 </div>
 
 <?php if (isset($error)): ?>
-<div class="alert alert-danger mb-4"><?= e($error) ?></div>
+<sl-alert variant="danger" open class="mb-4">
+  <sl-icon slot="icon" name="exclamation-circle"></sl-icon><?= e($error) ?>
+</sl-alert>
 <?php endif; ?>
 
 <form method="POST">
@@ -53,34 +57,24 @@ require_once __DIR__ . '/../includes/header.php';
       <div class="cms-card mb-4">
         <div class="cms-card-header"><span class="cms-card-title">Inhoud</span></div>
         <div class="cms-card-body">
-          <div class="mb-3">
-            <label class="form-label">Titel *</label>
-            <input type="text" class="form-control" name="title" value="<?= e($page['title'] ?? $_POST['title'] ?? '') ?>" data-slug-source="[name=slug]" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Slug</label>
-            <div class="input-group">
-              <span class="input-group-text text-muted"><?= BASE_URL ?>/</span>
-              <input type="text" class="form-control" name="slug" value="<?= e($page['slug'] ?? '') ?>">
-            </div>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Inhoud</label>
-            <textarea class="form-control" name="content" id="editor" rows="18" style="font-family:monospace;"><?= e($page['content'] ?? '') ?></textarea>
-          </div>
+          <sl-input class="mb-3" label="Titel *" type="text" name="title"
+            value="<?= e($page['title'] ?? $_POST['title'] ?? '') ?>"
+            data-slug-source="[name=slug]" required></sl-input>
+          <sl-input class="mb-3" label="Slug" name="slug" value="<?= e($page['slug'] ?? '') ?>">
+            <span slot="prefix"><?= BASE_URL ?>/</span>
+          </sl-input>
+          <sl-textarea class="mb-0 monospace" label="Inhoud" name="content" rows="18"
+            value="<?= e($page['content'] ?? '') ?>"></sl-textarea>
         </div>
       </div>
       <div class="cms-card">
         <div class="cms-card-header"><span class="cms-card-title">SEO</span></div>
         <div class="cms-card-body">
-          <div class="mb-3">
-            <label class="form-label">Meta Titel</label>
-            <input type="text" class="form-control" name="meta_title" value="<?= e($page['meta_title'] ?? '') ?>" placeholder="Laat leeg om paginatitel te gebruiken">
-          </div>
-          <div class="mb-0">
-            <label class="form-label">Meta Beschrijving</label>
-            <textarea class="form-control" name="meta_desc" rows="3" maxlength="160" placeholder="Maximaal 160 tekens"><?= e($page['meta_desc'] ?? '') ?></textarea>
-          </div>
+          <sl-input class="mb-3" label="Meta Titel" name="meta_title"
+            value="<?= e($page['meta_title'] ?? '') ?>"
+            placeholder="Laat leeg om paginatitel te gebruiken"></sl-input>
+          <sl-textarea label="Meta Beschrijving" name="meta_desc" rows="3" maxlength="160"
+            placeholder="Maximaal 160 tekens" value="<?= e($page['meta_desc'] ?? '') ?>"></sl-textarea>
         </div>
       </div>
     </div>
@@ -88,13 +82,10 @@ require_once __DIR__ . '/../includes/header.php';
       <div class="cms-card mb-3">
         <div class="cms-card-header"><span class="cms-card-title">Publiceren</span></div>
         <div class="cms-card-body">
-          <div class="mb-3">
-            <label class="form-label">Status</label>
-            <select class="form-select" name="status">
-              <option value="draft" <?= ($page['status'] ?? 'draft') === 'draft' ? 'selected' : '' ?>>Concept</option>
-              <option value="published" <?= ($page['status'] ?? '') === 'published' ? 'selected' : '' ?>>Gepubliceerd</option>
-            </select>
-          </div>
+          <sl-select class="mb-3" label="Status" name="status" value="<?= e($page['status'] ?? 'draft') ?>">
+            <sl-option value="draft">Concept</sl-option>
+            <sl-option value="published">Gepubliceerd</sl-option>
+          </sl-select>
           <?php if ($isEdit): ?>
           <div class="text-muted" style="font-size:.78rem;">
             Aangemaakt: <?= date('d M Y H:i', strtotime($page['created_at'])) ?><br>
@@ -103,11 +94,14 @@ require_once __DIR__ . '/../includes/header.php';
           <?php endif; ?>
         </div>
         <div class="px-4 pb-4 d-grid gap-2">
-          <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i> <?= $isEdit ? 'Wijzigingen opslaan' : 'Pagina aanmaken' ?></button>
+          <sl-button type="submit" variant="primary" class="w-100">
+            <i slot="prefix" class="bi bi-check-lg"></i>
+            <?= $isEdit ? 'Wijzigingen opslaan' : 'Pagina aanmaken' ?>
+          </sl-button>
           <?php if ($isEdit): ?>
-          <a href="<?= BASE_URL ?>/<?= e($page['slug']) ?>" target="_blank" class="btn btn-outline-secondary">
-            <i class="bi bi-eye me-1"></i> Bekijk pagina
-          </a>
+          <sl-button href="<?= BASE_URL ?>/<?= e($page['slug']) ?>" target="_blank" variant="neutral" outline class="w-100">
+            <i slot="prefix" class="bi bi-eye"></i> Bekijk pagina
+          </sl-button>
           <?php endif; ?>
         </div>
       </div>
