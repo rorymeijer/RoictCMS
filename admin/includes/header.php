@@ -34,7 +34,7 @@
   --sl-input-border-color:         #e2e8f0;
   --sl-input-border-color-focus:   #2563eb;
   --sl-focus-ring-width:           3px;
-  --sl-focus-ring-color:           rgba(37,99,235,.1);
+  --sl-focus-ring-color:           rgba(37,99,235,.4);
   --sl-input-border-radius-medium: 9px;
   --sl-input-font-size-medium:     .88rem;
 
@@ -147,7 +147,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 #topbar .page-title { font-size: 1rem; font-weight: 700; color: var(--text); }
 #topbar .topbar-actions { margin-left: auto; display: flex; align-items: center; gap: .5rem; }
 .topbar-icon-btn {
-  width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--border);
+  width: 44px; height: 44px; border-radius: 9px; border: 1px solid var(--border);
   background: transparent; display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: all .15s; color: var(--text-muted); text-decoration: none;
 }
@@ -204,7 +204,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   font-size: .88rem; transition: border-color .15s, box-shadow .15s; background: white;
 }
 .form-control:focus, .form-select:focus {
-  border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.1); outline: none;
+  border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.3); outline: none;
 }
 
 /* Legacy Bootstrap button overrides (kept for module compat) */
@@ -237,9 +237,52 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   #main-wrap { margin-left: 0 !important; }
 }
 
-/* Misc */
+/* ── Misc ──────────────────────────────────────────────────────────────── */
 .text-muted { color: var(--text-muted) !important; }
 .separator { height: 1px; background: var(--border); margin: .5rem 0; }
+
+/* ── Accessibility: skip link ──────────────────────────────────────────── */
+.skip-link {
+  position: absolute; top: -100%; left: 1rem; z-index: 9999;
+  background: var(--primary); color: #fff; padding: .5rem 1.25rem;
+  border-radius: 0 0 10px 10px; font-weight: 600; font-size: .9rem;
+  text-decoration: none; transition: top .15s;
+}
+.skip-link:focus { top: 0; outline: 3px solid #fff; outline-offset: 2px; }
+
+/* ── Accessibility: screen-reader only ─────────────────────────────────── */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* ── Accessibility: visible focus indicators (WCAG 2.2 SC 2.4.11) ──────── */
+:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+/* Remove outline for mouse users, keep for keyboard */
+:focus:not(:focus-visible) { outline: none; }
+
+/* Sidebar nav links focus */
+#sidebar .nav-link:focus-visible {
+  outline: 3px solid #60a5fa;
+  outline-offset: -3px;
+  border-radius: 4px;
+}
+/* User card focus */
+#sidebar .user-card:focus-visible {
+  outline: 3px solid #60a5fa;
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+/* Topbar icon buttons focus */
+.topbar-icon-btn:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+  border-color: var(--primary);
+  color: var(--primary);
+}
 
 /* Marketplace */
 .market-card {
@@ -259,94 +302,109 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 <?php do_action('admin_head'); ?>
 </head>
 <body>
+<!-- Skip to main content (WCAG 2.4.1) -->
+<a href="#main-content" class="skip-link">Naar hoofdinhoud springen</a>
 
 <!-- Sidebar -->
-<aside id="sidebar">
+<aside id="sidebar" aria-label="Beheernavigatie">
   <div class="sidebar-logo">
-    <div class="logo-icon">⚡</div>
+    <div class="logo-icon" aria-hidden="true">⚡</div>
     <div>
       <div class="logo-text"><?= e(Settings::get('site_name', 'ROICT CMS')) ?></div>
-      <div class="logo-version">v<?= Updater::currentVersion() ?> Admin</div>
+      <div class="logo-version" aria-hidden="true">v<?= Updater::currentVersion() ?> Admin</div>
     </div>
   </div>
-  <nav>
-    <a href="<?= BASE_URL ?>/admin/" class="nav-link <?= ($activePage ?? '') === 'dashboard' ? 'active' : '' ?>">
-      <i class="bi bi-grid-1x2-fill"></i> Dashboard
+  <nav aria-label="Hoofdmenu">
+    <a href="<?= BASE_URL ?>/admin/" class="nav-link <?= ($activePage ?? '') === 'dashboard' ? 'active' : '' ?>"<?= ($activePage ?? '') === 'dashboard' ? ' aria-current="page"' : '' ?>>
+      <i class="bi bi-grid-1x2-fill" aria-hidden="true"></i> Dashboard
     </a>
 
-    <div class="nav-section">Inhoud</div>
-    <a href="<?= BASE_URL ?>/admin/pages/" class="nav-link <?= ($activePage ?? '') === 'pages' ? 'active' : '' ?>">
-      <i class="bi bi-file-earmark-text"></i> Pagina's
+    <div class="nav-section" aria-hidden="true">Inhoud</div>
+    <a href="<?= BASE_URL ?>/admin/pages/" class="nav-link <?= ($activePage ?? '') === 'pages' ? 'active' : '' ?>"<?= ($activePage ?? '') === 'pages' ? ' aria-current="page"' : '' ?>>
+      <i class="bi bi-file-earmark-text" aria-hidden="true"></i> Pagina's
     </a>
-    <a href="<?= BASE_URL ?>/admin/news/" class="nav-link <?= ($activePage ?? '') === 'news' ? 'active' : '' ?>">
-      <i class="bi bi-newspaper"></i> Nieuws
+    <a href="<?= BASE_URL ?>/admin/news/" class="nav-link <?= ($activePage ?? '') === 'news' ? 'active' : '' ?>"<?= ($activePage ?? '') === 'news' ? ' aria-current="page"' : '' ?>>
+      <i class="bi bi-newspaper" aria-hidden="true"></i> Nieuws
     </a>
-    <a href="<?= BASE_URL ?>/admin/media/" class="nav-link <?= ($activePage ?? '') === 'media' ? 'active' : '' ?>">
-      <i class="bi bi-images"></i> Media
-    </a>
-
-    <div class="nav-section">Beheer</div>
-    <a href="<?= BASE_URL ?>/admin/users/" class="nav-link <?= ($activePage ?? '') === 'users' ? 'active' : '' ?>">
-      <i class="bi bi-people"></i> Gebruikers
-    </a>
-    <a href="<?= BASE_URL ?>/admin/themes/" class="nav-link <?= ($activePage ?? '') === 'themes' ? 'active' : '' ?>">
-      <i class="bi bi-palette"></i> Thema's
+    <a href="<?= BASE_URL ?>/admin/media/" class="nav-link <?= ($activePage ?? '') === 'media' ? 'active' : '' ?>"<?= ($activePage ?? '') === 'media' ? ' aria-current="page"' : '' ?>>
+      <i class="bi bi-images" aria-hidden="true"></i> Media
     </a>
 
-    <div class="nav-section">Uitbreidingen</div>
-    <a href="<?= BASE_URL ?>/admin/modules/" class="nav-link <?= ($activePage ?? '') === 'modules' ? 'active' : '' ?>">
-      <i class="bi bi-puzzle"></i> Modules
+    <div class="nav-section" aria-hidden="true">Beheer</div>
+    <a href="<?= BASE_URL ?>/admin/users/" class="nav-link <?= ($activePage ?? '') === 'users' ? 'active' : '' ?>"<?= ($activePage ?? '') === 'users' ? ' aria-current="page"' : '' ?>>
+      <i class="bi bi-people" aria-hidden="true"></i> Gebruikers
     </a>
-    <a href="<?= BASE_URL ?>/admin/marketplace/" class="nav-link <?= ($activePage ?? '') === 'marketplace' ? 'active' : '' ?>">
-      <i class="bi bi-shop"></i> Marketplace
+    <a href="<?= BASE_URL ?>/admin/themes/" class="nav-link <?= ($activePage ?? '') === 'themes' ? 'active' : '' ?>"<?= ($activePage ?? '') === 'themes' ? ' aria-current="page"' : '' ?>>
+      <i class="bi bi-palette" aria-hidden="true"></i> Thema's
+    </a>
+
+    <div class="nav-section" aria-hidden="true">Uitbreidingen</div>
+    <a href="<?= BASE_URL ?>/admin/modules/" class="nav-link <?= ($activePage ?? '') === 'modules' ? 'active' : '' ?>"<?= ($activePage ?? '') === 'modules' ? ' aria-current="page"' : '' ?>>
+      <i class="bi bi-puzzle" aria-hidden="true"></i> Modules
+    </a>
+    <a href="<?= BASE_URL ?>/admin/marketplace/" class="nav-link <?= ($activePage ?? '') === 'marketplace' ? 'active' : '' ?>"<?= ($activePage ?? '') === 'marketplace' ? ' aria-current="page"' : '' ?>>
+      <i class="bi bi-shop" aria-hidden="true"></i> Marketplace
     </a>
 
     <?php do_action('admin_sidebar_nav', $activePage ?? ''); ?>
-    <div class="separator mx-3 my-2"></div>
-    <a href="<?= BASE_URL ?>/admin/settings/" class="nav-link <?= ($activePage ?? '') === 'settings' ? 'active' : '' ?>">
-      <i class="bi bi-gear"></i> Instellingen
+    <div class="separator mx-3 my-2" role="separator" aria-hidden="true"></div>
+    <a href="<?= BASE_URL ?>/admin/settings/" class="nav-link <?= ($activePage ?? '') === 'settings' ? 'active' : '' ?>"<?= ($activePage ?? '') === 'settings' ? ' aria-current="page"' : '' ?>>
+      <i class="bi bi-gear" aria-hidden="true"></i> Instellingen
     </a>
-    <a href="<?= BASE_URL ?>/admin/updates/" class="nav-link <?= ($activePage ?? '') === 'updates' ? 'active' : '' ?>">
-      <i class="bi bi-arrow-up-circle"></i> Updates
+    <a href="<?= BASE_URL ?>/admin/updates/" class="nav-link <?= ($activePage ?? '') === 'updates' ? 'active' : '' ?>"<?= ($activePage ?? '') === 'updates' ? ' aria-current="page"' : '' ?>>
+      <i class="bi bi-arrow-up-circle" aria-hidden="true"></i> Updates
     </a>
   </nav>
   <div class="sidebar-footer">
-    <div class="user-card" onclick="window.location='<?= BASE_URL ?>/admin/profile.php'">
-      <div class="user-avatar"><?= strtoupper(substr($_SESSION['user_name'] ?? 'A', 0, 1)) ?></div>
-      <div class="user-info">
+    <a href="<?= BASE_URL ?>/admin/profile.php" class="user-card"
+       aria-label="Profiel van <?= e($_SESSION['user_name'] ?? 'Admin') ?> (<?= ucfirst(e($_SESSION['user_role'] ?? 'admin')) ?>)">
+      <div class="user-avatar" aria-hidden="true"><?= strtoupper(substr($_SESSION['user_name'] ?? 'A', 0, 1)) ?></div>
+      <div class="user-info" aria-hidden="true">
         <div class="name"><?= e($_SESSION['user_name'] ?? 'Admin') ?></div>
-        <div class="role"><?= ucfirst($_SESSION['user_role'] ?? 'admin') ?></div>
+        <div class="role"><?= ucfirst(e($_SESSION['user_role'] ?? 'admin')) ?></div>
       </div>
-      <i class="bi bi-three-dots-vertical ms-auto text-secondary" style="font-size:.9rem;"></i>
-    </div>
+      <i class="bi bi-three-dots-vertical ms-auto text-secondary" style="font-size:.9rem;" aria-hidden="true"></i>
+    </a>
   </div>
 </aside>
-<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+<div id="sidebar-overlay" onclick="closeSidebar()" aria-hidden="true"></div>
 
 <!-- Main -->
 <div id="main-wrap">
-  <div id="topbar">
-    <button class="topbar-icon-btn sidebar-toggle-btn" onclick="toggleSidebar()">
-      <i class="bi bi-list"></i>
+  <div id="topbar" role="banner">
+    <button class="topbar-icon-btn sidebar-toggle-btn"
+            id="sidebar-toggle-btn"
+            onclick="toggleSidebar()"
+            aria-label="Menu openen"
+            aria-expanded="false"
+            aria-controls="sidebar">
+      <i class="bi bi-list" aria-hidden="true"></i>
     </button>
-    <span class="page-title"><?= isset($pageTitle) ? e($pageTitle) : 'Dashboard' ?></span>
+    <span class="page-title" aria-live="polite"><?= isset($pageTitle) ? e($pageTitle) : 'Dashboard' ?></span>
     <div class="topbar-actions">
-      <a href="<?= BASE_URL ?>/" target="_blank" class="topbar-icon-btn" title="Bekijk website">
-        <i class="bi bi-box-arrow-up-right"></i>
+      <a href="<?= BASE_URL ?>/" target="_blank" rel="noopener noreferrer"
+         class="topbar-icon-btn"
+         aria-label="Bekijk website (opent in nieuw tabblad)">
+        <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
       </a>
-      <a href="<?= BASE_URL ?>/admin/settings/" class="topbar-icon-btn">
-        <i class="bi bi-gear"></i>
+      <a href="<?= BASE_URL ?>/admin/settings/"
+         class="topbar-icon-btn"
+         aria-label="Instellingen">
+        <i class="bi bi-gear" aria-hidden="true"></i>
       </a>
-      <a href="<?= BASE_URL ?>/admin/logout.php" class="topbar-icon-btn" title="Uitloggen">
-        <i class="bi bi-box-arrow-right"></i>
+      <a href="<?= BASE_URL ?>/admin/logout.php"
+         class="topbar-icon-btn"
+         aria-label="Uitloggen">
+        <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
       </a>
     </div>
   </div>
-  <div id="content">
-    <?= renderFlash() ?>
+  <main id="main-content" tabindex="-1">
+    <div role="status" aria-live="polite" aria-atomic="true"><?= renderFlash() ?></div>
 <script>
 var sidebar = document.getElementById('sidebar');
 var overlay = document.getElementById('sidebar-overlay');
+var toggleBtn = document.getElementById('sidebar-toggle-btn');
 
 function toggleSidebar() {
   var isOpen = sidebar.classList.contains('open');
@@ -359,12 +417,22 @@ function toggleSidebar() {
 function openSidebar() {
   sidebar.classList.add('open');
   overlay.classList.add('show');
+  overlay.removeAttribute('aria-hidden');
   document.body.style.overflow = 'hidden';
+  if (toggleBtn) {
+    toggleBtn.setAttribute('aria-expanded', 'true');
+    toggleBtn.setAttribute('aria-label', 'Menu sluiten');
+  }
 }
 function closeSidebar() {
   sidebar.classList.remove('open');
   overlay.classList.remove('show');
+  overlay.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
+  if (toggleBtn) {
+    toggleBtn.setAttribute('aria-expanded', 'false');
+    toggleBtn.setAttribute('aria-label', 'Menu openen');
+  }
 }
 
 overlay.addEventListener('click', closeSidebar);
@@ -374,5 +442,13 @@ document.querySelectorAll('#sidebar .nav-link').forEach(function(link) {
   link.addEventListener('click', function() {
     if (window.innerWidth <= 768) closeSidebar();
   });
+});
+
+// Sluit sidebar met Escape-toets
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+    closeSidebar();
+    if (toggleBtn) toggleBtn.focus();
+  }
 });
 </script>

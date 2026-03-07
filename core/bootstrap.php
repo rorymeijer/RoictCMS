@@ -143,9 +143,12 @@ function getFlash(): ?array {
 function renderFlash(): string {
     $flash = getFlash();
     if (!$flash) return '';
-    $icons = ['success' => 'check-circle', 'error' => 'x-circle', 'warning' => 'exclamation-triangle', 'info' => 'info-circle'];
-    $icon = $icons[$flash['type']] ?? 'info-circle';
-    return '<sl-alert variant="' . $flash['type'] . '" open closable class="mb-4"><sl-icon name="' . $icon . '" slot="icon"></sl-icon>' . e($flash['message']) . '</sl-alert>';
+    $icons    = ['success' => 'check-circle', 'error' => 'x-circle', 'warning' => 'exclamation-triangle', 'info' => 'info-circle'];
+    $variants = ['success' => 'success', 'error' => 'danger', 'warning' => 'warning', 'info' => 'primary'];
+    $icon     = $icons[$flash['type']]    ?? 'info-circle';
+    $variant  = $variants[$flash['type']] ?? 'primary';
+    $live     = in_array($flash['type'], ['error', 'warning']) ? 'assertive' : 'polite';
+    return '<sl-alert variant="' . $variant . '" open closable class="mb-4" role="alert" aria-live="' . $live . '"><sl-icon name="' . $icon . '" slot="icon" aria-hidden="true"></sl-icon>' . e($flash['message']) . '</sl-alert>';
 }
 
 // Pagination helper
