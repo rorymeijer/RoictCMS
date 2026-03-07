@@ -1,8 +1,10 @@
-  </div><!-- #content -->
+  </main><!-- #main-content -->
 </div><!-- #main-wrap -->
 
-<!-- Global confirm dialog -->
-<sl-dialog id="cms-confirm-dialog" label="Bevestigen">
+<!-- Global confirm dialog (WCAG 2.4.3 focus management) -->
+<sl-dialog id="cms-confirm-dialog"
+           label="Bevestigen"
+           aria-describedby="cms-confirm-msg">
   <p id="cms-confirm-msg" style="margin:0;"></p>
   <div slot="footer" style="display:flex;gap:.5rem;justify-content:flex-end;">
     <sl-button id="cms-confirm-cancel" variant="neutral">Annuleren</sl-button>
