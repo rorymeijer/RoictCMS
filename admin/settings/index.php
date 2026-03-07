@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
         redirect(BASE_URL . '/admin/settings/');
     }
 
-    $allowed = ['site_name','site_tagline','site_email','posts_per_page','date_format','timezone','admin_language','maintenance_mode','maintenance_message','footer_text','homepage_type','homepage_page_id','marketplace_show_released','marketplace_show_beta','marketplace_show_alpha','marketplace_manual_upload'];
+    $allowed = ['site_name','site_tagline','site_email','posts_per_page','date_format','timezone','admin_language','maintenance_mode','maintenance_message','footer_text','homepage_type','homepage_page_id','marketplace_show_released','marketplace_show_beta','marketplace_show_alpha','marketplace_show_dev','marketplace_manual_upload'];
     $data = array_intersect_key($_POST, array_flip($allowed));
 
     // Ensure homepage_page_id is stored as int
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
     }
 
     // Checkboxes: als niet aangevinkt stuurt de browser geen waarde mee, expliciet op '0' zetten
-    foreach (['maintenance_mode', 'marketplace_show_released', 'marketplace_show_beta', 'marketplace_show_alpha', 'marketplace_manual_upload'] as $cb) {
+    foreach (['maintenance_mode', 'marketplace_show_released', 'marketplace_show_beta', 'marketplace_show_alpha', 'marketplace_show_dev', 'marketplace_manual_upload'] as $cb) {
         if (!isset($data[$cb])) $data[$cb] = '0';
     }
     Settings::setMultiple($data);
@@ -149,6 +149,10 @@ require_once __DIR__ . '/../includes/header.php';
             <input class="form-check-input" type="checkbox" name="marketplace_show_alpha" value="1" id="mkt_alpha" <?= Settings::get('marketplace_show_alpha', '0') == '1' ? 'checked' : '' ?>>
             <label class="form-check-label" for="mkt_alpha">Alpha <span class="badge bg-danger ms-1">Alpha</span></label>
           </div>
+          <div class="form-check form-switch mt-2" id="mkt_dev_row" style="display:none;">
+            <input class="form-check-input" type="checkbox" name="marketplace_show_dev" value="1" id="mkt_dev" <?= Settings::get('marketplace_show_dev', '0') == '1' ? 'checked' : '' ?>>
+            <label class="form-check-label" for="mkt_dev">Dev <span class="badge ms-1" style="background:#6f42c1;">Dev</span></label>
+          </div>
           <div class="form-check form-switch mt-2">
             <input class="form-check-input" type="checkbox" name="marketplace_manual_upload" value="1" id="mkt_manual_upload" <?= Settings::get('marketplace_manual_upload', '0') == '1' ? 'checked' : '' ?>>
             <label class="form-check-label" for="mkt_manual_upload">Manuale upload <span class="badge bg-info text-dark ms-1">ZIP</span></label>
@@ -192,4 +196,31 @@ require_once __DIR__ . '/../includes/header.php';
     <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i> Instellingen opslaan</button>
   </div>
 </form>
+<script>
+(function() {
+  var STORAGE_KEY = 'roict_dev_switch_unlocked';
+  var devRow = document.getElementById('mkt_dev_row');
+  var alphaCheckbox = document.getElementById('mkt_alpha');
+  if (!devRow || !alphaCheckbox) return;
+
+  // Als de dev switch al eerder ontgrendeld is, direct tonen
+  if (localStorage.getItem(STORAGE_KEY) === '1') {
+    devRow.style.display = '';
+  }
+
+  var alphaClickCount = 0;
+
+  alphaCheckbox.addEventListener('change', function() {
+    // Toon dev switch pas als hij nog verborgen is
+    if (localStorage.getItem(STORAGE_KEY) === '1') return;
+
+    alphaClickCount++;
+    if (alphaClickCount >= 3) {
+      localStorage.setItem(STORAGE_KEY, '1');
+      devRow.style.display = '';
+      alphaClickCount = 0;
+    }
+  });
+})();
+</script>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

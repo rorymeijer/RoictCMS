@@ -222,9 +222,11 @@ class ModuleManager {
         $showReleased = Settings::get('marketplace_show_released', '1') !== '0';
         $showBeta     = Settings::get('marketplace_show_beta',     '0') === '1';
         $showAlpha    = Settings::get('marketplace_show_alpha',    '0') === '1';
+        $showDev      = Settings::get('marketplace_show_dev',      '0') === '1';
 
-        $modules = array_values(array_filter($modules, function($m) use ($showReleased, $showBeta, $showAlpha) {
+        $modules = array_values(array_filter($modules, function($m) use ($showReleased, $showBeta, $showAlpha, $showDev) {
             $status = $m['status'] ?? '';
+            if ($status === 'dev')   return $showDev;
             if ($status === 'alpha') return $showAlpha;
             if ($status === 'beta')  return $showBeta;
             return $showReleased; // stabiel/released
