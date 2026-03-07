@@ -681,6 +681,13 @@ class ModuleManager {
             require_once $uninstallScript;
         }
         self::$db->delete(DB_PREFIX . 'modules', 'slug = ?', [$slug]);
+
+        // Verwijder de modulemap van de server
+        $moduleDir = MODULES_PATH . '/' . $slug;
+        if (is_dir($moduleDir)) {
+            self::rrmdir($moduleDir);
+        }
+
         return ['success' => true, 'message' => 'Module verwijderd.'];
     }
 
