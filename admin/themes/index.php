@@ -126,9 +126,12 @@ require_once __DIR__ . '/../includes/header.php';
         <?php endif; ?>
       </div>
       <?php else: ?>
-      <div class="d-flex gap-2">
-        <sl-button variant="success" size="small" class="flex-grow-1" disabled>
+      <div class="d-flex gap-2 flex-wrap">
+        <sl-button variant="success" size="small" disabled style="flex:1;min-width:0;">
           <i slot="prefix" class="bi bi-check-circle"></i> Huidig thema
+        </sl-button>
+        <sl-button href="<?= BASE_URL ?>/admin/themes/editor.php" size="small" variant="primary" outline title="Themabestanden bewerken">
+          <i class="bi bi-pencil-square"></i>
         </sl-button>
         <?php if ($hasUpdate): ?>
         <sl-button size="small" variant="warning" onclick="updateTheme('<?= e($theme['slug']) ?>', '<?= e($updateUrl) ?>', this)" title="Bijwerken naar v<?= e($remoteVer) ?>">

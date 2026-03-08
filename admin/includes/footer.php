@@ -94,6 +94,17 @@ function showToast(type, msg) {
 function showAlert(msg, type) {
   showToast(type === 'danger' ? 'error' : type, msg);
 }
+
+// Wrap all .cms-table elements in a .table-scroll div for mobile horizontal scroll
+(function() {
+  document.querySelectorAll('.cms-table').forEach(function(table) {
+    if (table.parentElement && table.parentElement.classList.contains('table-scroll')) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'table-scroll';
+    table.parentNode.insertBefore(wrap, table);
+    wrap.appendChild(table);
+  });
+})();
 </script>
 <?php if (isset($extraScript)): ?>
 <script><?= $extraScript ?></script>

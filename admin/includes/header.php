@@ -185,10 +185,21 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 /* Tables */
 .cms-table { width: 100%; border-collapse: collapse; }
 .cms-table th { padding: .75rem 1rem; font-size: .75rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .05em; color: var(--text-muted); border-bottom: 2px solid var(--border); text-align: left; }
+  letter-spacing: .05em; color: var(--text-muted); border-bottom: 2px solid var(--border); text-align: left;
+  white-space: nowrap; }
 .cms-table td { padding: .8rem 1rem; border-bottom: 1px solid var(--border); font-size: .88rem; vertical-align: middle; }
 .cms-table tr:last-child td { border-bottom: none; }
 .cms-table tbody tr:hover { background: #f8fafc; }
+
+/* Responsive table wrapper — added automatically by footer.js on mobile */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.table-scroll::-webkit-scrollbar { height: 5px; }
+.table-scroll::-webkit-scrollbar-track { background: transparent; }
+.table-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+@media (max-width: 768px) {
+  .table-scroll .cms-table th,
+  .table-scroll .cms-table td { white-space: nowrap; }
+}
 
 /* Legacy badge classes (kept for module compat) */
 .badge-status { padding: .25rem .65rem; border-radius: 999px; font-size: .72rem; font-weight: 700; }
