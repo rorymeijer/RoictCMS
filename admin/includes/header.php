@@ -155,7 +155,8 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 /* quick-add-btn replaced by sl-button[variant="primary"] */
 
 /* Content */
-#content { padding: 1.75rem; flex: 1; }
+#content { padding: 2rem; flex: 1; }
+#main-content { padding: 2rem; flex: 1; }
 
 /* Cards */
 .cms-card {
